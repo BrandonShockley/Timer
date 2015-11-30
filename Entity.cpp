@@ -1,26 +1,49 @@
 #include "Entity.h"
 #include "Error.h"
 
-Entity::Entity(const std::string path)
+Entity::Entity(const std::string path, sf::Vector2f position, sf::IntRect rect, float scale) : position_(position)
 {
-	sf::Texture texture;
-	if (!texture.loadFromFile(path))
+	if (rect != sf::IntRect())
 	{
-		fatalError("Unable to load texture: " + path);
+		if (!texture_.loadFromFile(path, rect))
+		{
+			fatalError("Unable to load texture: " + path);
+		}
 	}
-	sprite_.setTexture(texture);
+	else
+	{
+		if (!texture_.loadFromFile(path))
+		{
+			fatalError("Unable to load texture: " + path);
+		}
+	}
+	sprite_.setTexture(texture_);
+	sprite_.scale(scale, scale);
+	sprite_.setPosition(position_);
 }
 
 Entity::~Entity()
 {
 }
 
-void Entity::update()
+void Entity::update(float time)
 {
 	
 }
 
 void Entity::render(sf::RenderWindow& window)
 {
+	sprite_.setPosition(position_);
 	window.draw(sprite_);
+}
+
+void Entity::handleInput(sf::RenderWindow & window)
+{
+}
+
+bool Entity::hasTexture()
+{
+	if (sprite_.getTexture() != nullptr)
+		return true;
+	return false;
 }

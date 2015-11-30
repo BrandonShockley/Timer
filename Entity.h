@@ -5,11 +5,14 @@
 class Entity
 {
 public:
-	Entity(const std::string path);
+	Entity(const std::string path, sf::Vector2f position, sf::IntRect rect = sf::IntRect(), float scale = 1);
 	~Entity();
-	virtual void update();
+	virtual void update(float time);
 	virtual void render(sf::RenderWindow& window);
-private:
+	virtual void handleInput(sf::RenderWindow& window);
+	bool hasTexture();
+protected:
+	sf::Texture texture_;
 	sf::Sprite sprite_;
 	sf::Vector2f position_;
 };

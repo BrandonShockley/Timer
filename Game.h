@@ -2,10 +2,12 @@
 #include <SFML\Graphics.hpp>
 #include <vector>
 #include "Entity.h"
+#include "Level.h"
 
 enum GameState
 {
-	RUNNING,
+	MENU,
+	PLAYING,
 	PAUSED,
 	STOPPED
 };
@@ -18,7 +20,7 @@ public:
 private:
 	void gameLoop();
 	void processInput();
-	void update();
+	void update(float time);
 	void render();
 
 	static const unsigned int TARGET_FRAMERATE;
@@ -26,5 +28,6 @@ private:
 	sf::RenderWindow& window_;
 	GameState gameState_;
 	std::vector<Entity*> entities_;
+	std::vector<Level*> levels_;
 };
 
