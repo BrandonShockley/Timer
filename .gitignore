@@ -19,6 +19,8 @@ $RECYCLE.BIN/
 
 #Visual Studio Stuff
 *.opensdf
+*.sdf
+*.suo
 
 # =========================
 # Operating System Files
