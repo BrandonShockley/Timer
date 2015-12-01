@@ -7,7 +7,7 @@ Game::Game(sf::RenderWindow & window) : window_(window)
 {
 	gameState_ = GameState::PLAYING;
 	levels_.push_back(new Level("maps/test.tmx"));
-	entities_.push_back(new Player("assets/player.png", levels_[0]->getPlayerSpawn(), window_));
+	entities_.push_back(new Player(levels_[0]->getPlayerSpawn()));
 	gameLoop();
 }
 
@@ -41,7 +41,16 @@ void Game::gameLoop()
 
 void Game::processInput()
 {
-	for (Entity* i : entities_)
+	sf::Event e;
+	while (window_.pollEvent(e))
+	{
+		switch (e.type)
+		{
+		case sf::Event::Closed:
+			gameState_ = GameState::STOPPED;
+		}
+	}
+	for (Level* i : levels_)
 	{
 		i->handleInput(window_);
 	}
@@ -49,7 +58,7 @@ void Game::processInput()
 
 void Game::update(float time)
 {
-	for (Entity* i : entities_)
+	for (Level* i : levels_)
 	{
 		i->update(time);
 	}
@@ -57,12 +66,7 @@ void Game::update(float time)
 
 void Game::render()
 {
-	
 	for (Level* i : levels_)
-	{
-		i->render(window_);
-	}
-	for (Entity* i : entities_)
 	{
 		i->render(window_);
 	}

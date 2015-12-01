@@ -3,18 +3,8 @@
 #include <vector>
 #include <SFML\Graphics.hpp>
 #include "Entity.h"
-
-enum TileType
-{
-	NONSOLID,
-	SOLID
-};
-
-struct Tile
-{
-	TileType type;
-	Entity* entity;
-};
+#include "Player.h"
+#include "Tile.h"
 
 class Level
 {
@@ -23,6 +13,8 @@ public:
 	~Level();
 
 	void render(sf::RenderWindow& window);
+	void update(float time);
+	void handleInput(sf::RenderWindow& window);
 	sf::Vector2f getPlayerSpawn();
 private:
 	void loadMapData(const std::string path);
@@ -44,5 +36,6 @@ private:
 	} tileSet_;
 
 	sf::Vector2f playerSpawnPoint_;
+	Player* player_;
 };
 

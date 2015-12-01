@@ -5,6 +5,7 @@
 Level::Level(std::string path)
 {
 	loadMapData(path);
+	player_ = new Player(playerSpawnPoint_);
 }
 
 Level::~Level()
@@ -16,10 +17,15 @@ Level::~Level()
 			delete i.entity;
 		}
 	}
+	delete player_;
 }
 
 void Level::render(sf::RenderWindow& window)
 {
+	sf::View view;
+	view.setSize(mapWidth_ * tileSet_.tileWidth, mapHeight_ * tileSet_.tileHeight);
+	view.setCenter(mapWidth_ * tileSet_.tileWidth / 2, mapHeight_ * tileSet_.tileHeight / 2);
+	window.setView(view);
 	for (std::vector<Tile> i : grid_)
 	{
 		for (Tile i : i)
@@ -28,6 +34,17 @@ void Level::render(sf::RenderWindow& window)
 				i.entity->render(window);
 		}
 	}
+	player_->render(window);
+}
+
+void Level::update(float time)
+{
+	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
+}
+
+void Level::handleInput(sf::RenderWindow & window)
+{
+	player_->handleInput(window);
 }
 
 sf::Vector2f Level::getPlayerSpawn()
