@@ -1,0 +1,9 @@
+﻿  Player.cpp
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(47): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(50): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(50): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(58): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(68): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(78): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\brandon\desktop\funtime sfml\timer\player.cpp(109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Timer.vcxproj -> C:\Users\Brandon\Desktop\Funtime SFML\Timer\Debug\Timer.exe
