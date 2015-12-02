@@ -27,8 +27,6 @@ public:
 	using Entity::handleInput;
 	virtual void handleInput(sf::RenderWindow& window);
 	void handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
-
-	
 private:
 	void handlePhysics(float time);
 
@@ -46,4 +44,3 @@ private:
 	static const float JUMP_VELOCITY;
 	static const std::string DEFAULT_PLAYER_TEXTURE;
 };
-

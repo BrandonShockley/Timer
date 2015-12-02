@@ -8,6 +8,7 @@ Player::Player(sf::Vector2f position, const std::string path) : Entity(path, pos
 {
 
 }
+
 Player::~Player()
 {
 }
@@ -39,7 +40,6 @@ void Player::handleInput(sf::RenderWindow & window)
 
 void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
-	//Gotta change this to check every point along perimeter
 	for (int i = 0; i < sprite_.getGlobalBounds().width; i++)
 	{
 		if (grid[(position_.x + i) / tileBounds.x][(position_.y + sprite_.getGlobalBounds().height) / tileBounds.y].type == TileType::SOLID)
@@ -56,6 +56,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		if (grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 		{
 			collideRight_.colliding = true;
+			collideRight_.displacement = abs(grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x - sprite_.getGlobalBounds().width);
 			break;
 		}	
 		else
@@ -66,6 +67,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		if (grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 		{
 			collideLeft_.colliding = true;
+			collideLeft_.displacement = abs(grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x + tileBounds.x);
 			break;
 		}
 		else
@@ -76,6 +78,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		if (grid[(position_.x + i) / tileBounds.x][(position_.y) / tileBounds.y].type == TileType::SOLID)
 		{
 			collideTop_.colliding = true;
+			collideTop_.displacement = abs(grid[(position_.x + i) / tileBounds.x][(position_.y) / tileBounds.y].entity->getPosition().y + tileBounds.y);
 			break;
 		}
 		else
@@ -115,14 +118,17 @@ void Player::handlePhysics(float time)
 	if (collideRight_.colliding && velocity_.x > 0)
 	{
 		velocity_.x = 0;
+		position_.x = collideRight_.displacement;
 	}
 	if (collideLeft_.colliding && velocity_.x < 0)
 	{
 		velocity_.x = 0;
+		position_.x = collideLeft_.displacement;
 	}
 	if (collideTop_.colliding && velocity_.y < 0)
 	{
 		velocity_.y = 0;
+		position_.y = collideTop_.displacement;
 	}
 	velocity_ += acceleration_ * time;
 	position_ += velocity_ * time;
