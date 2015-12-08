@@ -23,7 +23,7 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(mapWidth_ * tileSet_.tileWidth / 1.5f, mapHeight_ * tileSet_.tileHeight / 2);
+	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / 1.5f, (float)(mapHeight_ * tileSet_.tileHeight / 2));
 	view.setCenter(player_->getPosition().x, player_->getPosition().y);
 	window.setView(view);
 	for (std::vector<Tile> i : grid_)
