@@ -17,7 +17,6 @@ Player::Player(sf::Vector2f position) :
 	idleAnimation_(Animation(DEFAULT_ANIMATION_PATH + "/idle.png", 1)),
 	runAnimation_(Animation(DEFAULT_ANIMATION_PATH + "/running.png", DEFAULT_ANIMATION_FRAMES))
 {
-
 }
 
 Player::~Player()
@@ -54,14 +53,17 @@ void Player::render(sf::RenderWindow & window)
 	switch (state_)
 	{
 	case State::IDLE:
+		runAnimation_.reset();
 		sprite_.setTexture(idleAnimation_.getNextFrame());
 		break;
 	case State::MOVING_LEFT:
+		idleAnimation_.reset();
 		sprite_.setTexture(runAnimation_.getNextFrame());
 		//Flips the texture over
 		sprite_.setTextureRect(sf::IntRect(sprite_.getTexture()->getSize().x, 0, -(int)sprite_.getTexture()->getSize().x, sprite_.getTexture()->getSize().y));
 		break;
 	case State::MOVING_RIGHT:
+		idleAnimation_.reset();
 		sprite_.setTexture(runAnimation_.getNextFrame());
 		//Anti-flip
 		sprite_.setTextureRect(sf::IntRect(0, 0, sprite_.getTexture()->getSize().x, sprite_.getTexture()->getSize().y));
@@ -80,7 +82,6 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		{
 			onGround_.colliding = true;
 			onGround_.displacement = abs(grid[(position_.x + i) / tileBounds.x][(position_.y + sprite_.getGlobalBounds().height) / tileBounds.y].entity->getPosition().y - sprite_.getGlobalBounds().height);
-			
 			if (velocity_.y > 0)
 			{
 				velocity_.y = 0;
@@ -132,7 +133,8 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		else
 			collideLeft_.colliding = false;
 	}
-	//Top platform collision //TODO: Fix weird top glitch when not tired
+	
+	//Top platform collision
 	for (int i = 0; i < sprite_.getGlobalBounds().width; i++)
 	{
 		if (grid[(position_.x + i) / tileBounds.x][(position_.y) / tileBounds.y].type == TileType::SOLID)
@@ -154,6 +156,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 
 void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
+	//Take input
 	switch (state_)
 	{
 	case State::IDLE:
@@ -171,9 +174,10 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		acceleration_ = sf::Vector2f(-MOVE_ACCELERATION, 0);
 		break;
 	}
-
+	//Check collision
 	handleCollision(grid, tileBounds);
 
+	//Run through physics
 	if (!onGround_.colliding)
 	{
 		acceleration_ += sf::Vector2f(0, GRAVITY);

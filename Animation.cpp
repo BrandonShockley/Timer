@@ -27,3 +27,8 @@ sf::Texture& Animation::getNextFrame()
 		currentFrame = 1;
 	return frames_[currentFrame - 1];
 }
+
+void Animation::reset()
+{
+	currentFrame = 1;
+}

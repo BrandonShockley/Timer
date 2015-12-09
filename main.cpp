@@ -3,7 +3,7 @@
 #include <string>
 #include "Game.h"
 
-static const unsigned int WINDOW_WIDTH = 1280;
+static const unsigned int WINDOW_WIDTH = 1080;
 static const unsigned int WINDOW_HEIGHT = 720;
 static const std::string WINDOW_TITLE = "Timer";
 
