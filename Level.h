@@ -35,6 +35,8 @@ private:
 		std::string source;
 	} tileSet_;
 
+	Entity* background_;
+
 	sf::Vector2f playerSpawnPoint_;
 	Player* player_;
 };

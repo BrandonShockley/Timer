@@ -17,4 +17,3 @@ protected:
 	sf::Sprite sprite_;
 	sf::Vector2f position_;
 };
-

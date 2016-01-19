@@ -13,4 +13,3 @@ private:
 	std::vector<sf::Texture> frames_;
 	unsigned int currentFrame = 1;
 };
-

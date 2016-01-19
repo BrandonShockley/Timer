@@ -6,9 +6,16 @@
 
 enum State
 {
-	IDLE,
+	IDLE_LEFT,
+	IDLE_RIGHT,
 	MOVING_LEFT,
-	MOVING_RIGHT
+	MOVING_RIGHT,
+	JUMPING_LEFT,
+	JUMPING_RIGHT,
+	WALL_CLING_LEFT,
+	WALL_CLING_RIGHT,
+	WALL_JUMP_LEFT,
+	WALL_JUMP_RIGHT
 };
 
 struct ColliderData
@@ -43,8 +50,18 @@ private:
 	ColliderData collideRight_;
 	bool jumped_;
 
-	Animation idleAnimation_;
-	Animation runAnimation_;
+	bool jump_;
+	bool canGoHigher_;
+	sf::Clock jumpTimer_;
+
+	Animation idleAnimationLeft_;
+	Animation idleAnimationRight_;
+	Animation runAnimationLeft_;
+	Animation runAnimationRight_;
+	Animation jumpAnimationLeft_;
+	Animation jumpAnimationRight_;
+	Animation wallClingAnimationLeft_;
+	Animation wallClingAnimationRight_;
 
 	static const float GRAVITY;
 	static const float JUMP_VELOCITY;
@@ -55,4 +72,5 @@ private:
 	static const std::string DEFAULT_PLAYER_TEXTURE;
 	static const std::string DEFAULT_ANIMATION_PATH;
 	static const unsigned int DEFAULT_ANIMATION_FRAMES;
+	static const float JUMP_TIME;
 };

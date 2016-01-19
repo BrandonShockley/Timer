@@ -23,9 +23,10 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / 1.5f, (float)(mapHeight_ * tileSet_.tileHeight / 2));
+	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / 1.5f, (float)(mapHeight_ * tileSet_.tileHeight / 1.3));
 	view.setCenter(player_->getPosition().x, player_->getPosition().y);
 	window.setView(view);
+	background_->render(window);
 	for (std::vector<Tile> i : grid_)
 	{
 		for (Tile i : i)
@@ -94,6 +95,15 @@ void Level::loadMapData(const std::string path)
 			playerSpawnPoint_.x = n.child("object").attribute("x").as_float();
 			playerSpawnPoint_.y = n.child("object").attribute("y").as_float();
 		}//TODO: Add chaser enemy spawn point code
+	}
+
+	//Grabs background name
+	for (pugi::xml_node n : doc.child("map").child("properties").children("property"))
+	{
+		if (std::string(n.attribute("name").as_string()) == "background")
+		{
+			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0));
+		}
 	}
 
 	//Constructs the level
