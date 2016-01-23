@@ -1,11 +1,11 @@
 #include "Player.h"
 
-const float Player::GRAVITY = 10000;
+const float Player::GRAVITY = 9000;
 const float Player::JUMP_VELOCITY = -3300;
-const float Player::MOVE_ACCELERATION = 30000;
+const float Player::MOVE_ACCELERATION = 10000;
 const float Player::MAX_X_SPEED = 2000;
 const float Player::MAX_Y_SPEED = 4000;
-const float Player::X_DRAG = 10000;
+const float Player::X_DRAG = 9000;
 const float Player::JUMP_TIME = 300;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
@@ -200,7 +200,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				break;
 			}
 			else
-				collideRight_.colliding = false;
+				collideRight_.colliding = true;
 		}
 	}
 
@@ -232,13 +232,13 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		if (onGround_.colliding)
 			acceleration_ = sf::Vector2f(MOVE_ACCELERATION, 0);
 		else
-			acceleration_ = sf::Vector2f(MOVE_ACCELERATION / 3, 0);
+			acceleration_ = sf::Vector2f(MOVE_ACCELERATION / 7, 0);
 		break;
 	case State::MOVING_LEFT:
 		if (onGround_.colliding)
 			acceleration_ = sf::Vector2f(-MOVE_ACCELERATION, 0);
 		else
-			acceleration_ = sf::Vector2f(-MOVE_ACCELERATION / 3, 0);
+			acceleration_ = sf::Vector2f(-MOVE_ACCELERATION / 7, 0);
 		break;
 	case State::WALL_JUMP_LEFT:
 		velocity_.y = JUMP_VELOCITY;
