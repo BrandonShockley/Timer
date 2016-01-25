@@ -1,6 +1,7 @@
 #include "Player.h"
 
 const float Player::GRAVITY = 9000;
+const float Player::SLIDE_GRAVITY = 7000;
 const float Player::JUMP_VELOCITY = -3300;
 const float Player::MOVE_ACCELERATION = 10000;
 const float Player::MAX_X_SPEED = 2000;
@@ -37,7 +38,8 @@ void Player::update(float time, std::vector<std::vector<Tile>> grid, sf::Vector2
 
 void Player::handleInput(sf::RenderWindow & window)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && onGround_.colliding)
+	//Jumping
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && onGround_.colliding && !wPress_)
 	{
 		jump_ = true;
 		jumped_ = true;
@@ -49,17 +51,20 @@ void Player::handleInput(sf::RenderWindow & window)
 		if (canGoHigher_)
 			jump_ = true;
 	}
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W) && jumped_)
-		canGoHigher_ = false;
-	/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && (state_ == State::WALL_CLING_LEFT || state_ == State::WALL_CLING_RIGHT))
+	if ((!sf::Keyboard::isKeyPressed(sf::Keyboard::W) && jumped_) || collideTop_.colliding)
 	{
-		jumped_ = true;
-		if (state_ == State::WALL_CLING_LEFT)
-			state_ = State::WALL_JUMP_RIGHT;
-		if (state_ == State::WALL_CLING_RIGHT)
-			state_ = State::WALL_JUMP_LEFT;
-		return;
-	}*/
+		canGoHigher_ = false;
+		collideTop_.colliding = false;
+	}
+	//Prevents constant jumping from held down W
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	{
+		wPress_ = true;
+	}
+	else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	{
+		wPress_ = false;
+	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 	{
 		state_ = State::MOVING_RIGHT;
@@ -262,21 +267,26 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		jump_ = false;
 	}
 
+	//Wall slide
+	/*if (collideRight_.colliding && state_ == State::MOVING_RIGHT)
+	{
+		state_ = State::WALL_CLING_RIGHT;
+	}
+	else if (collideLeft_.colliding && state_ == State::MOVING_LEFT)
+	{
+		state_ = State::WALL_CLING_LEFT;
+	}*/
 	//Run through physics
-	if (!onGround_.colliding)
+	if (!onGround_.colliding && (state_ != State::WALL_CLING_LEFT && state_ != State::WALL_CLING_RIGHT))
 	{
 		acceleration_ += sf::Vector2f(0, GRAVITY);
 	}
-	/*
-	//Wall cling
-	if ((state_ == State::MOVING_RIGHT || state_ == State::WALL_CLING_RIGHT) && collideRight_.colliding && !collideTop_.colliding && !onGround_.colliding)
+	else if (state_ == State::WALL_CLING_LEFT || state_ == State::WALL_CLING_RIGHT)
 	{
-		//state_ = State::WALL_CLING_RIGHT;
+		acceleration_ += sf::Vector2f(0, SLIDE_GRAVITY);
 	}
-	else if ((state_ == State::MOVING_LEFT || state_ == State::WALL_CLING_LEFT) && collideLeft_.colliding && !collideTop_.colliding && !onGround_.colliding)
-	{
-		//state_ = State::WALL_CLING_LEFT;
-	}*/
+
+	
 
 	if (velocity_.x > MAX_X_SPEED)
 		velocity_.x = MAX_X_SPEED;

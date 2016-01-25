@@ -53,6 +53,7 @@ private:
 	bool jump_;
 	bool canGoHigher_;
 	sf::Clock jumpTimer_;
+	bool wPress_;
 
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
@@ -64,6 +65,7 @@ private:
 	Animation wallClingAnimationRight_;
 
 	static const float GRAVITY;
+	static const float SLIDE_GRAVITY;
 	static const float JUMP_VELOCITY;
 	static const float MOVE_ACCELERATION;
 	static const float MAX_X_SPEED;
