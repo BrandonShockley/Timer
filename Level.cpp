@@ -23,7 +23,7 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / 1.5f, (float)(mapHeight_ * tileSet_.tileHeight / 1.3));
+	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * 2), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * 2)));
 	view.setCenter(player_->getPosition().x, player_->getPosition().y);
 	window.setView(view);
 	background_->render(window);

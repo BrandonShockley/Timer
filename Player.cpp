@@ -1,7 +1,7 @@
 #include "Player.h"
 
 const float Player::GRAVITY = 9000;
-const float Player::SLIDE_GRAVITY = 7000;
+const float Player::SLIDE_GRAVITY = 4500;
 const float Player::JUMP_VELOCITY = -3300;
 const float Player::MOVE_ACCELERATION = 10000;
 const float Player::MAX_X_SPEED = 2000;
@@ -56,6 +56,25 @@ void Player::handleInput(sf::RenderWindow & window)
 		canGoHigher_ = false;
 		collideTop_.colliding = false;
 	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && state_ == State::WALL_CLING_RIGHT && !wPress_)
+	{
+		jump_ = true;
+		jumped_ = true;
+		canGoHigher_ = true;
+		jumpTimer_.restart();
+		state_ = State::WALL_JUMP_LEFT;
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && state_ == State::WALL_CLING_LEFT && !wPress_)
+	{
+		jump_ = true;
+		jumped_ = true;
+		canGoHigher_ = true;
+		jumpTimer_.restart();
+		state_ = State::WALL_JUMP_RIGHT;
+		return;
+	}
+
 	//Prevents constant jumping from held down W
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
@@ -75,6 +94,7 @@ void Player::handleInput(sf::RenderWindow & window)
 		state_ = State::MOVING_LEFT;
 		return;
 	}
+
 	if (state_ == State::MOVING_LEFT || state_ == State::IDLE_LEFT)
 	{
 		state_ = State::IDLE_LEFT;
@@ -205,7 +225,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				break;
 			}
 			else
-				collideRight_.colliding = true;
+				collideRight_.colliding = false;
 		}
 	}
 
@@ -235,30 +255,33 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		break;
 	case State::MOVING_RIGHT:
 		if (onGround_.colliding)
-			acceleration_ = sf::Vector2f(MOVE_ACCELERATION, 0);
+			acceleration_ += sf::Vector2f(MOVE_ACCELERATION, 0);
 		else
-			acceleration_ = sf::Vector2f(MOVE_ACCELERATION / 7, 0);
+			acceleration_ += sf::Vector2f(MOVE_ACCELERATION / 5, 0);
 		break;
 	case State::MOVING_LEFT:
 		if (onGround_.colliding)
-			acceleration_ = sf::Vector2f(-MOVE_ACCELERATION, 0);
+			acceleration_ += sf::Vector2f(-MOVE_ACCELERATION, 0);
 		else
-			acceleration_ = sf::Vector2f(-MOVE_ACCELERATION / 7, 0);
+			acceleration_ += sf::Vector2f(-MOVE_ACCELERATION / 5, 0);
 		break;
 	case State::WALL_JUMP_LEFT:
-		velocity_.y = JUMP_VELOCITY;
-		velocity_.x = -MAX_X_SPEED;
+		velocity_.y = JUMP_VELOCITY/1.3;
+		velocity_.x = -MAX_X_SPEED/1.3;
 		state_ = State::MOVING_LEFT;
+		collideRight_.colliding = false;
 		break;
 	case State::WALL_JUMP_RIGHT:
-		velocity_.y = JUMP_VELOCITY;
-		velocity_.x = MAX_X_SPEED;
+		velocity_.y = JUMP_VELOCITY / 1.3;
+		velocity_.x = MAX_X_SPEED/1.3;
 		state_ = State::MOVING_RIGHT;
+		collideLeft_.colliding = false;
 		break;
 	}
 	//Check collision
 	handleCollision(grid, tileBounds);
 
+	//Jump :P
 	if (jump_)
 	{
 		float j = jumpTimer_.getElapsedTime().asSeconds();
@@ -268,16 +291,17 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 	}
 
 	//Wall slide
-	/*if (collideRight_.colliding && state_ == State::MOVING_RIGHT)
+	if (collideRight_.colliding && state_ != State::MOVING_LEFT && !onGround_.colliding)
 	{
 		state_ = State::WALL_CLING_RIGHT;
 	}
-	else if (collideLeft_.colliding && state_ == State::MOVING_LEFT)
+	else if (collideLeft_.colliding && state_ != State::MOVING_RIGHT && !onGround_.colliding)
 	{
 		state_ = State::WALL_CLING_LEFT;
-	}*/
-	//Run through physics
-	if (!onGround_.colliding && (state_ != State::WALL_CLING_LEFT && state_ != State::WALL_CLING_RIGHT))
+	}
+
+	//Run through gravity
+	if (!onGround_.colliding && state_ != State::WALL_CLING_LEFT && state_ != State::WALL_CLING_RIGHT)
 	{
 		acceleration_ += sf::Vector2f(0, GRAVITY);
 	}
@@ -286,7 +310,7 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		acceleration_ += sf::Vector2f(0, SLIDE_GRAVITY);
 	}
 
-	
+	velocity_ += acceleration_ * time;
 
 	if (velocity_.x > MAX_X_SPEED)
 		velocity_.x = MAX_X_SPEED;
@@ -296,7 +320,14 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		velocity_.y = MAX_Y_SPEED;
 	else if (velocity_.y < -MAX_Y_SPEED)
 		velocity_.y = -MAX_Y_SPEED;
-
-	velocity_ += acceleration_ * time;
+	
 	position_ += velocity_ * time;
+	acceleration_ = sf::Vector2f(0, 0);
 }
+
+
+/*
+Meat Boy Stuff
+- Don't need to press in direction of wall to slide
+- When pressing away from wall, it takes a bit for the character to peel off
+*/
