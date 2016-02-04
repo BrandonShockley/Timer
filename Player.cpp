@@ -56,6 +56,9 @@ void Player::handleInput(sf::RenderWindow & window)
 		canGoHigher_ = false;
 		collideTop_.colliding = false;
 	}
+
+	//Wall jump input
+	
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && state_ == State::WALL_CLING_RIGHT && !wPress_)
 	{
 		jump_ = true;
@@ -94,8 +97,15 @@ void Player::handleInput(sf::RenderWindow & window)
 		state_ = State::MOVING_LEFT;
 		return;
 	}
-
-	if (state_ == State::MOVING_LEFT || state_ == State::IDLE_LEFT)
+	if (state_ == State::WALL_CLING_LEFT && collideRight_.colliding)
+	{
+		return;
+	}
+	if (state_ == State::WALL_CLING_RIGHT && collideLeft_.colliding)
+	{
+		return;
+	}
+	if (state_ == State::MOVING_LEFT || state_ == State::IDLE_LEFT || state_ == State::WALL_CLING_RIGHT)
 	{
 		state_ = State::IDLE_LEFT;
 		return;
@@ -153,6 +163,10 @@ void Player::render(sf::RenderWindow & window)
 
 void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
+	onGround_.colliding = false;
+	collideLeft_.colliding = false;
+	collideRight_.colliding = false;
+	collideTop_.colliding = false;
 	//Floor collision
 	if (velocity_.y >= 0)
 	{
@@ -204,6 +218,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				acceleration_.x = 0;
 				velocity_.x = 0;
 				position_.x = collideLeft_.displacement;
+				collideRight_.colliding = false;
 				break;
 			}
 			else
@@ -222,14 +237,13 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				acceleration_.x = 0;
 				velocity_.x = 0;
 				position_.x = collideRight_.displacement;
+				collideLeft_.colliding = false;
 				break;
 			}
 			else
 				collideRight_.colliding = false;
 		}
 	}
-
-
 }
 
 void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
@@ -323,6 +337,15 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 	
 	position_ += velocity_ * time;
 	acceleration_ = sf::Vector2f(0, 0);
+
+	//Reset collision
+	collideLeft_.colliding = false;
+	//collideRight_.colliding = false;
+	//collideTop_.colliding = false;
+	//onGround_.colliding = false;
+	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	printf("Colliding right: %i\n", collideRight_.colliding);
+	printf("Colliding left: %i\n", collideLeft_.colliding);
 }
 
 

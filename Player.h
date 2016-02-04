@@ -55,6 +55,8 @@ private:
 	sf::Clock jumpTimer_;
 	bool wPress_;
 
+	sf::Clock dropTimer_;
+
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
 	Animation runAnimationLeft_;
