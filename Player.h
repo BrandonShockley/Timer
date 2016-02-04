@@ -56,6 +56,7 @@ private:
 	bool wPress_;
 
 	sf::Clock dropTimer_;
+	bool startDrop_;
 
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
@@ -77,4 +78,5 @@ private:
 	static const std::string DEFAULT_ANIMATION_PATH;
 	static const unsigned int DEFAULT_ANIMATION_FRAMES;
 	static const float JUMP_TIME;
+	static const float DROP_TIME;
 };

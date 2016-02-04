@@ -8,6 +8,7 @@ const float Player::MAX_X_SPEED = 2000;
 const float Player::MAX_Y_SPEED = 4000;
 const float Player::X_DRAG = 9000;
 const float Player::JUMP_TIME = 300;
+const float Player::DROP_TIME = 300;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
 const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
@@ -15,7 +16,8 @@ const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
 //Path is to folder containing animation images
 Player::Player(sf::Vector2f position) : 
 	Entity(DEFAULT_PLAYER_TEXTURE, position),
-	jumped_(false), 
+	jumped_(false),
+	startDrop_(false),
 	idleAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/idleLeft.png", 1)),
 	idleAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/idleRight.png", 1)),
 	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", DEFAULT_ANIMATION_FRAMES)),
@@ -58,7 +60,6 @@ void Player::handleInput(sf::RenderWindow & window)
 	}
 
 	//Wall jump input
-	
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && state_ == State::WALL_CLING_RIGHT && !wPress_)
 	{
 		jump_ = true;
@@ -77,6 +78,41 @@ void Player::handleInput(sf::RenderWindow & window)
 		state_ = State::WALL_JUMP_RIGHT;
 		return;
 	}
+
+	//Peel off input
+	//Right
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && state_ == State::WALL_CLING_RIGHT && !startDrop_)
+	{
+		dropTimer_.restart();
+		startDrop_ = true;
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
+	{
+		state_ = State::MOVING_LEFT;
+		position_.x -= 1;
+		startDrop_ = false;
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
+		return;
+	//Left
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && state_ == State::WALL_CLING_LEFT && !startDrop_)
+	{
+		dropTimer_.restart();
+		startDrop_ = true;
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
+	{
+		state_ = State::MOVING_RIGHT;
+		position_.x += 1;
+		startDrop_ = false;
+		return;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
+		return;
+	startDrop_ = false;
 
 	//Prevents constant jumping from held down W
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -207,38 +243,42 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 		}
 	}
 	//Left wall collision
-	if (velocity_.x < 0)
+	if (velocity_.x <= 0)
 	{
 		for (int i = 0; i < sprite_.getGlobalBounds().height; i++)
 		{
-			if (grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
+			if (grid[(position_.x - 1) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 			{
 				collideLeft_.colliding = true;
-				collideLeft_.displacement = abs(grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x + tileBounds.x);
-				acceleration_.x = 0;
-				velocity_.x = 0;
-				position_.x = collideLeft_.displacement;
-				collideRight_.colliding = false;
-				break;
+				if (grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
+				{
+					collideLeft_.displacement = abs(grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x + tileBounds.x);
+					acceleration_.x = 0;
+					velocity_.x = 0;
+					position_.x = collideLeft_.displacement;
+					break;
+				}
 			}
 			else
 				collideLeft_.colliding = false;
 		}
 	}
 	//Right wall collision
-	if (velocity_.x > 0)
+	if (velocity_.x >= 0)
 	{
 		for (int i = 0; i < sprite_.getGlobalBounds().height; i++)
 		{
-			if (grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
+			if (grid[(position_.x + sprite_.getGlobalBounds().width + 1) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 			{
 				collideRight_.colliding = true;
-				collideRight_.displacement = abs(grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x - sprite_.getGlobalBounds().width);
-				acceleration_.x = 0;
-				velocity_.x = 0;
-				position_.x = collideRight_.displacement;
-				collideLeft_.colliding = false;
-				break;
+				if (grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
+				{
+					collideRight_.displacement = abs(grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x - sprite_.getGlobalBounds().width);
+					acceleration_.x = 0;
+					velocity_.x = 0;
+					position_.x = collideRight_.displacement;
+					break;
+				}
 			}
 			else
 				collideRight_.colliding = false;
@@ -338,11 +378,6 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 	position_ += velocity_ * time;
 	acceleration_ = sf::Vector2f(0, 0);
 
-	//Reset collision
-	collideLeft_.colliding = false;
-	//collideRight_.colliding = false;
-	//collideTop_.colliding = false;
-	//onGround_.colliding = false;
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	printf("Colliding right: %i\n", collideRight_.colliding);
 	printf("Colliding left: %i\n", collideLeft_.colliding);
@@ -351,6 +386,6 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 
 /*
 Meat Boy Stuff
-- Don't need to press in direction of wall to slide
+- Don't need to press in direction of wall to slide (check)
 - When pressing away from wall, it takes a bit for the character to peel off
 */
