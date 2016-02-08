@@ -11,8 +11,13 @@ const float Player::X_DRAG = 9000;
 const float Player::JUMP_TIME = 300;
 const float Player::DROP_TIME = 300;
 //Every 300 ticks, update the time list
+<<<<<<< HEAD
 const float Player::RECORD_INTERVAL = 350;
 const float Player::PLAYBACK_INTERVAL = 300;
+=======
+const float Player::RECORD_INTERVAL = 300;
+const float Player::PLAYBACK_INTERVAL = 750;
+>>>>>>> origin/master
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
 const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
