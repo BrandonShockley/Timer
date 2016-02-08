@@ -3,6 +3,7 @@
 #include "Tile.h"
 #include "Animation.h"
 #include <SFML\Graphics.hpp>
+#include <vector>
 
 enum State
 {
@@ -39,6 +40,7 @@ public:
 	void handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 private:
 	void handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
+	void updateLists();
 
 	sf::Vector2f velocity_;
 	sf::Vector2f acceleration_;
@@ -58,6 +60,15 @@ private:
 	sf::Clock dropTimer_;
 	bool startDrop_;
 
+	//Awesome timey wimey stuff
+	std::vector<sf::Vector2f> positionList_;
+	std::vector<sf::Vector2f> velocityList_;
+	std::vector<State> stateList_;
+	unsigned int recordTicker_;
+
+	bool timeTraveling_;
+	unsigned int playbackTicker_;
+
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
 	Animation runAnimationLeft_;
@@ -66,6 +77,8 @@ private:
 	Animation jumpAnimationRight_;
 	Animation wallClingAnimationLeft_;
 	Animation wallClingAnimationRight_;
+
+	sf::Shader shader;
 
 	static const float GRAVITY;
 	static const float SLIDE_GRAVITY;
@@ -79,4 +92,7 @@ private:
 	static const unsigned int DEFAULT_ANIMATION_FRAMES;
 	static const float JUMP_TIME;
 	static const float DROP_TIME;
+
+	static const float RECORD_INTERVAL;
+	static const float PLAYBACK_INTERVAL;
 };

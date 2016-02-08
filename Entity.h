@@ -12,6 +12,7 @@ public:
 	virtual void handleInput(sf::RenderWindow& window);
 	bool hasTexture();
 	sf::Vector2f getPosition();
+	sf::FloatRect getBounds();
 protected:
 	sf::Texture texture_;
 	sf::Sprite sprite_;

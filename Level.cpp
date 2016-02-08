@@ -2,7 +2,7 @@
 #include "Error.h"
 #include <pugixml\pugixml.hpp>
 
-Level::Level(std::string path)
+Level::Level(std::string path) : completed_(false)
 {
 	loadMapData(path);
 	player_ = new Player(playerSpawnPoint_);
@@ -26,6 +26,7 @@ void Level::render(sf::RenderWindow& window)
 	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * 2), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * 2)));
 	view.setCenter(player_->getPosition().x, player_->getPosition().y);
 	window.setView(view);
+	
 	background_->render(window);
 	for (std::vector<Tile> i : grid_)
 	{
@@ -41,6 +42,8 @@ void Level::render(sf::RenderWindow& window)
 void Level::update(float time)
 {
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
+	checkComplete();
+	printf("%i\n", completed_);
 }
 
 void Level::handleInput(sf::RenderWindow & window)
@@ -96,13 +99,23 @@ void Level::loadMapData(const std::string path)
 			playerSpawnPoint_.y = n.child("object").attribute("y").as_float();
 		}//TODO: Add chaser enemy spawn point code
 	}
+	//Grabs end point
+	for (pugi::xml_node n : doc.child("map").children("objectgroup"))
+	{
+		std::string name = std::string(n.attribute("name").as_string());
+		if (name == "Finish")
+		{
+			finishPoint_.x = n.child("object").attribute("x").as_float();
+			finishPoint_.y = n.child("object").attribute("y").as_float();
+		}
+	}
 
 	//Grabs background name
 	for (pugi::xml_node n : doc.child("map").child("properties").children("property"))
 	{
 		if (std::string(n.attribute("name").as_string()) == "background")
 		{
-			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0));
+			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0), sf::IntRect(), 3.0);
 		}
 	}
 
@@ -135,4 +148,15 @@ void Level::loadMapData(const std::string path)
 			}
 		}
 	}
+}
+
+void Level::checkComplete()
+{
+	float x = player_->getBounds().left;
+	float y = player_->getBounds().top;
+	float w = player_->getBounds().width;
+	float h = player_->getBounds().height;
+
+	if (x < finishPoint_.x && y < finishPoint_.y && x + w > finishPoint_.x && y + h > finishPoint_.y)
+		completed_ = true;
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="70" height="50" tilewidth="128" tileheight="128" nextobjectid="9">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="70" height="50" tilewidth="128" tileheight="128" nextobjectid="10">
  <properties>
   <property name="background" value="assets/backgrounds/bluesky.jpg"/>
  </properties>
- <tileset firstgid="1" name="spritesheet" tilewidth="128" tileheight="128" tilecount="20" columns="5">
+ <tileset firstgid="1" name="spritesheet" tilewidth="128" tileheight="128" tilecount="20">
   <image source="../assets/tiles/spritesheet.png" width="640" height="513"/>
  </tileset>
  <layer name="Tile Layer 1" width="70" height="50">
@@ -1190,9 +1190,9 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="11"/>
-   <tile gid="11"/>
-   <tile gid="11"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="17"/>
@@ -3512,5 +3512,8 @@
  </layer>
  <objectgroup name="PlayerSpawn">
   <object id="8" x="2968" y="688"/>
+ </objectgroup>
+ <objectgroup name="Finish">
+  <object id="9" x="8332" y="2180"/>
  </objectgroup>
 </map>
