@@ -36,6 +36,8 @@ void Game::gameLoop()
 		}
 		render();
 		clock.restart();
+		while (!window_.hasFocus())
+		{}
 	}
 }
 

@@ -18,6 +18,8 @@ public:
 	sf::Vector2f getPlayerSpawn();
 private:
 	void loadMapData(const std::string path);
+	//Checks if the player has reached the end
+	void checkComplete();
 
 	std::vector<std::vector<Tile>> grid_;
 	int mapWidth_;
@@ -38,6 +40,9 @@ private:
 	Entity* background_;
 
 	sf::Vector2f playerSpawnPoint_;
+	sf::Vector2f finishPoint_;
 	Player* player_;
+
+	bool completed_;
 };
 
