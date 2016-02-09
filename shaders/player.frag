@@ -6,11 +6,8 @@ void main()
 	if (timeWarp)
 	{
 		vec4 pixel = texture2D(texture, gl_TexCoord[0].xy) * 3.0;
-<<<<<<< HEAD
-		gl_FragColor = gl_Color * pixel * vec4(/*74.0*/255/255.0,/*210*/0.0/255.0,255/255,1.0);
-=======
 		gl_FragColor = gl_Color * pixel * vec4(74.0/255.0,210.0/255.0,255/255,1.0);
->>>>>>> origin/master
+		gl_FragColor = gl_Color * pixel * vec4(74.0/255.0,210.0/255.0,255/255,1.0);
 	}
 	else
 	{

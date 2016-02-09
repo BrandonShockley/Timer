@@ -21,23 +21,27 @@ Game::~Game()
 
 void Game::gameLoop()
 {
+	bool focus = false;
 	sf::Clock clock;
 	float pastTime = 0.0f;
 	while (gameState_ != GameState::STOPPED)
 	{
-		pastTime = clock.getElapsedTime().asSeconds();
-		processInput();
-		while (pastTime < 1.0f / TARGET_FRAMERATE) 
+		if (window_.hasFocus())
 		{
-			float currentTime = clock.getElapsedTime().asSeconds();
-			float deltaTime = currentTime - pastTime;
-			pastTime = currentTime;
-			update(deltaTime);
+			pastTime = clock.getElapsedTime().asSeconds();
+			processInput();
+			while (pastTime < 1.0f / TARGET_FRAMERATE)
+			{
+				float currentTime = clock.getElapsedTime().asSeconds();
+				float deltaTime = currentTime - pastTime;
+				pastTime = currentTime;
+				update(deltaTime);
+			}
+			render();
+			clock.restart();
 		}
-		render();
-		clock.restart();
-		while (!window_.hasFocus())
-		{}
+		else
+			processInput();
 	}
 }
 

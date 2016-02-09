@@ -43,7 +43,7 @@ void Level::update(float time)
 {
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
 	checkComplete();
-	printf("%i\n", completed_);
+	//printf("%i\n", completed_);
 }
 
 void Level::handleInput(sf::RenderWindow & window)
@@ -115,7 +115,7 @@ void Level::loadMapData(const std::string path)
 	{
 		if (std::string(n.attribute("name").as_string()) == "background")
 		{
-			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0), sf::IntRect(), 3.0);
+			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0), sf::IntRect(), 2.5);
 		}
 	}
 
