@@ -13,6 +13,7 @@ public:
 	bool hasTexture();
 	sf::Vector2f getPosition();
 	sf::FloatRect getBounds();
+	void setPosition(sf::Vector2f position);
 protected:
 	sf::Texture texture_;
 	sf::Sprite sprite_;
