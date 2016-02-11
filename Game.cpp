@@ -3,11 +3,11 @@
 
 const unsigned int Game::TARGET_FRAMERATE = 60;
 
-Game::Game(sf::RenderWindow & window) : window_(window)
+Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0)
 {
-	gameState_ = GameState::PLAYING;
+	gameState_ = GameState::MENU;
 	levels_.push_back(new Level("maps/test.tmx"));
-	entities_.push_back(new Player(levels_[0]->getPlayerSpawn()));
+	levels_.push_back(new Level("maps/ping.tmx"));
 	gameLoop();
 }
 
@@ -56,25 +56,44 @@ void Game::processInput()
 			gameState_ = GameState::STOPPED;
 		}
 	}
-	for (Level* i : levels_)
+	if (gameState_ == GameState::MENU)
 	{
-		i->handleInput(window_);
+		menu_.handleInput(window_);
+	}
+	if (gameState_ == GameState::PLAYING)
+	{
+		levels_[currentLevel_]->handleInput(window_);
 	}
 }
 
 void Game::update(float time)
 {
-	for (Level* i : levels_)
+	if (gameState_ == GameState::MENU)
 	{
-		i->update(time);
+		menu_.update(time);
+		if (menu_.selection_ == EXIT)
+			gameState_ = GameState::STOPPED;
+		if (menu_.selection_ == START)
+			gameState_ = GameState::PLAYING;
+	}
+	if (gameState_ == GameState::PLAYING)
+	{
+		levels_[currentLevel_]->update(time);
+		if (levels_[currentLevel_]->isCompleted())
+			currentLevel_++;
 	}
 }
 
 void Game::render()
 {
-	for (Level* i : levels_)
+	if (gameState_ == GameState::MENU)
 	{
-		i->render(window_);
+		menu_.render(window_);
+	}
+	if (gameState_ == GameState::PLAYING)
+	{
+		levels_[currentLevel_]->render(window_);
+		window_.setMouseCursorVisible(false);
 	}
 	window_.display();
 	window_.clear();

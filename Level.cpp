@@ -56,6 +56,11 @@ sf::Vector2f Level::getPlayerSpawn()
 	return playerSpawnPoint_;
 }
 
+bool Level::isCompleted()
+{
+	return completed_;
+}
+
 void Level::loadMapData(const std::string path)
 {
 	//Loads tile data
