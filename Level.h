@@ -16,7 +16,6 @@ public:
 	void update(float time);
 	void handleInput(sf::RenderWindow& window);
 	sf::Vector2f getPlayerSpawn();
-	bool isCompleted();
 private:
 	void loadMapData(const std::string path);
 	//Checks if the player has reached the end
