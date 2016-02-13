@@ -45,5 +45,8 @@ private:
 	Player* player_;
 
 	bool completed_;
+
+	static const float ZOOM;
+	static const float PARALLAX_MODIFIER;
 };
 

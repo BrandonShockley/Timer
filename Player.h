@@ -64,10 +64,10 @@ private:
 	std::vector<sf::Vector2f> positionList_;
 	std::vector<sf::Vector2f> velocityList_;
 	std::vector<State> stateList_;
-	unsigned int recordTicker_;
+	float recordTicker_;
 
 	bool timeTraveling_;
-	unsigned int playbackTicker_;
+	float playbackTicker_;
 
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
@@ -87,6 +87,7 @@ private:
 	static const float MAX_X_SPEED;
 	static const float MAX_Y_SPEED;
 	static const float X_DRAG;
+	static const float X_DRAG_AIR;
 	static const std::string DEFAULT_PLAYER_TEXTURE;
 	static const std::string DEFAULT_ANIMATION_PATH;
 	static const unsigned int DEFAULT_ANIMATION_FRAMES;

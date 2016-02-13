@@ -2,6 +2,9 @@
 #include "Error.h"
 #include <pugixml\pugixml.hpp>
 
+const float Level::ZOOM = 1.4;
+const float Level::PARALLAX_MODIFIER = 5;
+
 Level::Level(std::string path) : completed_(false)
 {
 	loadMapData(path);
@@ -23,8 +26,8 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * 2), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * 2)));
-	view.setCenter(player_->getPosition().x, player_->getPosition().y);
+	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)));
+	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	window.setView(view);
 	
 	background_->render(window);
@@ -42,8 +45,9 @@ void Level::render(sf::RenderWindow& window)
 void Level::update(float time)
 {
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
+	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 2 - player_->getPosition().x / PARALLAX_MODIFIER,
+		player_->getPosition().y - background_->getBounds().height / 2 - player_->getPosition().y / PARALLAX_MODIFIER));
 	checkComplete();
-	//printf("%i\n", completed_);
 }
 
 void Level::handleInput(sf::RenderWindow & window)

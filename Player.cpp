@@ -4,27 +4,27 @@
 const float Player::GRAVITY = 9000;
 const float Player::SLIDE_GRAVITY = 4500;
 const float Player::JUMP_VELOCITY = -3300;
-const float Player::MOVE_ACCELERATION = 10000;
+const float Player::MOVE_ACCELERATION = 12000;
 const float Player::MAX_X_SPEED = 2000;
 const float Player::MAX_Y_SPEED = 4000;
 const float Player::X_DRAG = 9000;
+const float Player::X_DRAG_AIR = 4000;
 const float Player::JUMP_TIME = 300;
 const float Player::DROP_TIME = 300;
-//Every 300 ticks, update the time list
-const float Player::RECORD_INTERVAL = 200;
-const float Player::PLAYBACK_INTERVAL = 350;
+const float Player::RECORD_INTERVAL = 1/60;
+const float Player::PLAYBACK_INTERVAL = 1/180;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
 const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
 
 //Path is to folder containing animation images
-Player::Player(sf::Vector2f position) : 
+Player::Player(sf::Vector2f position) :
 	Entity(DEFAULT_PLAYER_TEXTURE, position),
 	jumped_(false),
 	startDrop_(false),
-	recordTicker_(0),
+	recordTicker_(0.0f),
 	timeTraveling_(false),
-	playbackTicker_(0),
+	playbackTicker_(0.0f),
 	idleAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/idleLeft.png", 1)),
 	idleAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/idleRight.png", 1)),
 	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", DEFAULT_ANIMATION_FRAMES)),
@@ -46,12 +46,12 @@ Player::~Player()
 void Player::update(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
 	handlePhysics(time, grid, tileBounds);
-	recordTicker_++;
+	recordTicker_ += time;
 	if (recordTicker_ >= RECORD_INTERVAL && !timeTraveling_)
 	{
 		updateLists();
 		recordTicker_ = 0;
-	}	
+	}
 }
 
 void Player::handleInput(sf::RenderWindow & window)
@@ -251,7 +251,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 	else
 		onGround_.colliding = false;
 	//Top platform collision
-	if (velocity_.y < 0)
+	if (velocity_.y <= 0)
 	{
 		for (int i = 5; i < sprite_.getGlobalBounds().width - 5; i++)
 		{
@@ -279,7 +279,7 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				if (grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 				{
 					collideLeft_.displacement = abs(grid[(position_.x) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x + tileBounds.x);
-					acceleration_.x = 0;
+					//acceleration_.x = 0;
 					velocity_.x = 0;
 					position_.x = collideLeft_.displacement;
 					break;
@@ -297,10 +297,10 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 			if (grid[(position_.x + sprite_.getGlobalBounds().width + 1) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 			{
 				collideRight_.colliding = true;
-				if (grid[(position_.x + sprite_.getGlobalBounds().width - 1) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
+				if (grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].type == TileType::SOLID)
 				{
-					collideRight_.displacement = abs(grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x - sprite_.getGlobalBounds().width);\
-					acceleration_.x = 0;
+					collideRight_.displacement = abs(grid[(position_.x + sprite_.getGlobalBounds().width) / tileBounds.x][(position_.y + i) / tileBounds.y].entity->getPosition().x - sprite_.getGlobalBounds().width);
+					//acceleration_.x = 0;
 					velocity_.x = 0;
 					position_.x = collideRight_.displacement;
 					break;
@@ -320,7 +320,10 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		switch (state_)
 		{
 		case State::IDLE_RIGHT:
-			acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG, 0);
+			if (onGround_.colliding)
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG, 0);
+			else
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_AIR, 0);
 			if (-(abs(velocity_.x) / velocity_.x) != -(abs(velocity_.x + acceleration_.x * time) / (velocity_.x + acceleration_.x * time)))
 			{
 				acceleration_.x = 0.0f;
@@ -328,7 +331,10 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 			}
 			break;
 		case State::IDLE_LEFT:
-			acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG, 0);
+			if (onGround_.colliding)
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG, 0);
+			else
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_AIR, 0);
 			if (-(abs(velocity_.x) / velocity_.x) != -(abs(velocity_.x + acceleration_.x * time) / (velocity_.x + acceleration_.x * time)))
 			{
 				acceleration_.x = 0.0f;
@@ -373,11 +379,11 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		}
 
 		//Wall slide
-		if (collideRight_.colliding && state_ != State::MOVING_LEFT && !onGround_.colliding)
+		if (collideRight_.colliding /*&& state_ != State::MOVING_LEFT*/ && !onGround_.colliding)
 		{
 			state_ = State::WALL_CLING_RIGHT;
 		}
-		else if (collideLeft_.colliding && state_ != State::MOVING_RIGHT && !onGround_.colliding)
+		else if (collideLeft_.colliding /*&& state_ != State::MOVING_RIGHT*/ && !onGround_.colliding)
 		{
 			state_ = State::WALL_CLING_LEFT;
 		}
@@ -406,9 +412,9 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		position_ += velocity_ * time;
 		acceleration_ = sf::Vector2f(0, 0);
 	}
-	else 
+	else
 	{
-		playbackTicker_++;
+		playbackTicker_ += time;
 		if (playbackTicker_ >= PLAYBACK_INTERVAL && positionList_.size() > 1)
 		{
 			position_ = positionList_[positionList_.size() - 1];

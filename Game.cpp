@@ -5,7 +5,7 @@ const unsigned int Game::TARGET_FRAMERATE = 60;
 
 Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0)
 {
-	gameState_ = GameState::MENU;
+	gameState_ = GameState::PLAYING;
 	levels_.push_back(new Level("maps/test.tmx"));
 	levels_.push_back(new Level("maps/ping.tmx"));
 	gameLoop();
@@ -79,8 +79,10 @@ void Game::update(float time)
 	if (gameState_ == GameState::PLAYING)
 	{
 		levels_[currentLevel_]->update(time);
-		if (levels_[currentLevel_]->isCompleted())
+		if (levels_[currentLevel_]->isCompleted() && currentLevel_ != levels_.size())
 			currentLevel_++;
+		if (currentLevel_ == levels_.size())
+			gameState_ = GameState::STOPPED;
 	}
 }
 
