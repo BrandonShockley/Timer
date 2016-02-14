@@ -69,6 +69,8 @@ private:
 	bool timeTraveling_;
 	float playbackTicker_;
 
+	sf::RectangleShape gradient_;
+
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
 	Animation runAnimationLeft_;
@@ -78,7 +80,10 @@ private:
 	Animation wallClingAnimationLeft_;
 	Animation wallClingAnimationRight_;
 
-	sf::Shader shader;
+	sf::Shader shader_;
+	sf::Shader rectShader_;
+
+	sf::Clock fader_;
 
 	static const float GRAVITY;
 	static const float SLIDE_GRAVITY;
@@ -96,4 +101,6 @@ private:
 
 	static const float RECORD_INTERVAL;
 	static const float PLAYBACK_INTERVAL;
+
+	static const float FADER_DURATION;
 };

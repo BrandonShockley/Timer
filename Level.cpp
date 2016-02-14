@@ -2,7 +2,7 @@
 #include "Error.h"
 #include <pugixml\pugixml.hpp>
 
-const float Level::ZOOM = 1.4;
+const float Level::ZOOM = 2500;
 const float Level::PARALLAX_MODIFIER = 5;
 
 Level::Level(std::string path) : completed_(false)
@@ -26,7 +26,7 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(((float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)));
+	view.setSize(ZOOM * 1.6, ZOOM * 1.1/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
 	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	window.setView(view);
 	

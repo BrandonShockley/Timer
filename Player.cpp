@@ -5,7 +5,7 @@ const float Player::GRAVITY = 9000;
 const float Player::SLIDE_GRAVITY = 4500;
 const float Player::JUMP_VELOCITY = -3300;
 const float Player::MOVE_ACCELERATION = 12000;
-const float Player::MAX_X_SPEED = 2000;
+const float Player::MAX_X_SPEED = 2500;
 const float Player::MAX_Y_SPEED = 4000;
 const float Player::X_DRAG = 9000;
 const float Player::X_DRAG_AIR = 4000;
@@ -13,6 +13,7 @@ const float Player::JUMP_TIME = 300;
 const float Player::DROP_TIME = 300;
 const float Player::RECORD_INTERVAL = 1/60;
 const float Player::PLAYBACK_INTERVAL = 1/180;
+const float Player::FADER_DURATION = .2;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
 const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
@@ -34,9 +35,10 @@ Player::Player(sf::Vector2f position) :
 	wallClingAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingLeft.png", 1)),
 	wallClingAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingRight.png", 1))
 {
-	if (!shader.loadFromFile("shaders/player.frag", sf::Shader::Fragment))
+	if (!shader_.loadFromFile("shaders/player.frag", sf::Shader::Fragment))
 		fatalError("Failed to load player shader");
-
+	if (!rectShader_.loadFromFile("shaders/gradient.frag", sf::Shader::Fragment))
+		fatalError("Failed to load gradient shader");
 }
 
 Player::~Player()
@@ -59,11 +61,17 @@ void Player::handleInput(sf::RenderWindow & window)
 	//Time traveling! :D
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 	{
+		if (!timeTraveling_)
+			fader_.restart();
 		timeTraveling_ = true;
 		return;
 	}
 	else
+	{
+		if (timeTraveling_)
+			fader_.restart();
 		timeTraveling_ = false;
+	}
 	//Jumping
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && onGround_.colliding && !wPress_)
 	{
@@ -217,10 +225,19 @@ void Player::render(sf::RenderWindow & window)
 		idleAnimationRight_.reset();
 		break;
 	}
-	shader.setParameter("timeWarp", timeTraveling_);
-	shader.setParameter("texture", *sprite_.getTexture());
+	shader_.setParameter("timeWarp", timeTraveling_);
+	shader_.setParameter("texture", *sprite_.getTexture());
 	sprite_.setPosition(position_);
-	window.draw(sprite_, &shader);
+	window.draw(sprite_, &shader_);
+	gradient_.setFillColor(sf::Color::Cyan);
+	gradient_.setSize((sf::Vector2f)window.getView().getSize());
+	gradient_.setOrigin(gradient_.getSize().x / 2, gradient_.getSize().y / 2);
+	gradient_.setPosition(getPosition().x + getBounds().width / 2, getPosition().y + getBounds().height / 2);
+	rectShader_.setParameter("timeWarp", timeTraveling_);
+	rectShader_.setParameter("screenHeight", window.getSize().y);
+	rectShader_.setParameter("faderTime", fader_.getElapsedTime().asSeconds());
+	rectShader_.setParameter("faderDuration", FADER_DURATION);
+	window.draw(gradient_, &rectShader_);
 }
 
 void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
