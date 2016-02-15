@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Player.h"
 #include "Tile.h"
+#include "Drone.h"
 
 class Level
 {
@@ -43,10 +44,12 @@ private:
 	sf::Vector2f playerSpawnPoint_;
 	sf::Vector2f finishPoint_;
 	Player* player_;
+	Drone* drone_;
 
 	bool completed_;
 
 	static const float ZOOM;
 	static const float PARALLAX_MODIFIER;
+	static const float BACKGROUND_SCALE;
 };
 

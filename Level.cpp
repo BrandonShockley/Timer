@@ -3,12 +3,14 @@
 #include <pugixml\pugixml.hpp>
 
 const float Level::ZOOM = 2500;
-const float Level::PARALLAX_MODIFIER = 5;
+const float Level::PARALLAX_MODIFIER = 18;
+const float Level::BACKGROUND_SCALE = 3;
 
 Level::Level(std::string path) : completed_(false)
 {
 	loadMapData(path);
 	player_ = new Player(playerSpawnPoint_);
+	drone_ = new Drone({ sf::Vector2f(500,500), sf::Vector2f(10000, 1000) , sf::Vector2f(500,500)});
 }
 
 Level::~Level()
@@ -21,6 +23,7 @@ Level::~Level()
 		}
 	}
 	delete player_;
+	delete drone_;
 }
 
 void Level::render(sf::RenderWindow& window)
@@ -29,7 +32,6 @@ void Level::render(sf::RenderWindow& window)
 	view.setSize(ZOOM * 1.6, ZOOM * 1.1/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
 	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	window.setView(view);
-	
 	background_->render(window);
 	for (std::vector<Tile> i : grid_)
 	{
@@ -40,11 +42,13 @@ void Level::render(sf::RenderWindow& window)
 		}
 	}
 	player_->render(window);
+	drone_->render(window);
 }
 
 void Level::update(float time)
 {
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
+	drone_->update(time);
 	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 2 - player_->getPosition().x / PARALLAX_MODIFIER,
 		player_->getPosition().y - background_->getBounds().height / 2 - player_->getPosition().y / PARALLAX_MODIFIER));
 	checkComplete();
@@ -124,7 +128,7 @@ void Level::loadMapData(const std::string path)
 	{
 		if (std::string(n.attribute("name").as_string()) == "background")
 		{
-			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0), sf::IntRect(), 2.5);
+			background_ = new Entity(std::string(n.attribute("value").as_string()), sf::Vector2f(0, 0), sf::IntRect(), BACKGROUND_SCALE);
 		}
 	}
 

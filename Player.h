@@ -80,9 +80,10 @@ private:
 	Animation wallClingAnimationLeft_;
 	Animation wallClingAnimationRight_;
 
+	//SHADERS!!!! :D
 	sf::Shader shader_;
 	sf::Shader rectShader_;
-
+	//Used for fading effects
 	sf::Clock fader_;
 
 	static const float GRAVITY;
