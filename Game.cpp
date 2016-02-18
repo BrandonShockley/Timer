@@ -1,22 +1,19 @@
 #include "Game.h"
 #include "Player.h"
 
+
 const unsigned int Game::TARGET_FRAMERATE = 60;
 
 Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0)
 {
-	gameState_ = GameState::PLAYING;
+	gameState_ = GameState::MENU;
 	levels_.push_back(new Level("maps/test.tmx"));
-	levels_.push_back(new Level("maps/ping.tmx"));
+	//levels_.push_back(new Level("maps/ping.tmx"));
 	gameLoop();
 }
 
 Game::~Game()
 {
-	for (unsigned int i = 0; i < entities_.size(); i++)
-	{
-		entities_.erase(entities_.begin() + i);
-	}
 }
 
 void Game::gameLoop()
@@ -37,6 +34,7 @@ void Game::gameLoop()
 				pastTime = currentTime;
 				update(deltaTime);
 			}
+			printf("%i\n", gameState_);
 			render();
 			clock.restart();
 		}
@@ -83,7 +81,11 @@ void Game::update(float time)
 			currentLevel_++;
 		if (currentLevel_ == levels_.size())
 			gameState_ = GameState::STOPPED;
+		if (levels_[currentLevel_]->isDead())
+			gameState_ = GameState::GAME_OVER;
 	}
+	if (gameState_ == GameState::GAME_OVER)
+		gameOverScreen_.update(time);
 }
 
 void Game::render()
@@ -96,6 +98,11 @@ void Game::render()
 	{
 		levels_[currentLevel_]->render(window_);
 		window_.setMouseCursorVisible(false);
+	}
+	if (gameState_ == GameState::GAME_OVER)
+	{
+		gameOverScreen_.render(window_);
+		window_.setMouseCursorVisible(true);
 	}
 	window_.display();
 	window_.clear();

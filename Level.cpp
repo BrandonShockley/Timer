@@ -3,14 +3,14 @@
 #include <pugixml\pugixml.hpp>
 
 const float Level::ZOOM = 2500;
-const float Level::PARALLAX_MODIFIER = 18;
-const float Level::BACKGROUND_SCALE = 3;
+const float Level::PARALLAX_MODIFIER = 24;
+const float Level::BACKGROUND_SCALE = 4;
 
-Level::Level(std::string path) : completed_(false)
+Level::Level(std::string path) : completed_(false), died_(false)
 {
 	loadMapData(path);
 	player_ = new Player(playerSpawnPoint_);
-	drone_ = new Drone({ sf::Vector2f(500,500), sf::Vector2f(10000, 1000) , sf::Vector2f(500,500)});
+	//drone_ = new Drone({ sf::Vector2f(500,500), sf::Vector2f(10000, 1000) , sf::Vector2f(500,500), sf::Vector2f(1000, 10000)});
 }
 
 Level::~Level()
@@ -49,8 +49,9 @@ void Level::update(float time)
 {
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
 	drone_->update(time);
-	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 2 - player_->getPosition().x / PARALLAX_MODIFIER,
-		player_->getPosition().y - background_->getBounds().height / 2 - player_->getPosition().y / PARALLAX_MODIFIER));
+	//Parallax effect
+	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 3 - player_->getPosition().x / PARALLAX_MODIFIER,
+		player_->getPosition().y - background_->getBounds().height / 3 - player_->getPosition().y / PARALLAX_MODIFIER));
 	checkComplete();
 }
 
@@ -67,6 +68,11 @@ sf::Vector2f Level::getPlayerSpawn()
 bool Level::isCompleted()
 {
 	return completed_;
+}
+
+bool Level::isDead()
+{
+	return died_;
 }
 
 void Level::loadMapData(const std::string path)
@@ -110,7 +116,7 @@ void Level::loadMapData(const std::string path)
 		{
 			playerSpawnPoint_.x = n.child("object").attribute("x").as_float();
 			playerSpawnPoint_.y = n.child("object").attribute("y").as_float();
-		}//TODO: Add chaser enemy spawn point code
+		}
 	}
 	//Grabs end point
 	for (pugi::xml_node n : doc.child("map").children("objectgroup"))
@@ -120,6 +126,20 @@ void Level::loadMapData(const std::string path)
 		{
 			finishPoint_.x = n.child("object").attribute("x").as_float();
 			finishPoint_.y = n.child("object").attribute("y").as_float();
+		}
+	}
+	//Grabs drone path
+	for (pugi::xml_node n : doc.child("map").children("objectgroup"))
+	{
+		std::string name = std::string(n.attribute("name").as_string());
+		if (name == "DronePath")
+		{
+			std::vector<sf::Vector2f> vec;
+			for (pugi::xml_node i : n)
+			{
+				vec.push_back(sf::Vector2f(i.attribute("x").as_float(), i.attribute("y").as_float()));
+			}
+			drone_ = new Drone(vec);
 		}
 	}
 
@@ -172,4 +192,10 @@ void Level::checkComplete()
 
 	if (x < finishPoint_.x && y < finishPoint_.y && x + w > finishPoint_.x && y + h > finishPoint_.y)
 		completed_ = true;
+
+	if (player_->getBounds().contains(drone_->getBounds().left, drone_->getBounds().top) ||
+		player_->getBounds().contains(drone_->getBounds().left, drone_->getBounds().top + drone_->getBounds().height) ||
+		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top) ||
+		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top + drone_->getBounds().height))
+		died_ = true;
 }

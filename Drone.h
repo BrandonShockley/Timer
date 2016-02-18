@@ -7,7 +7,7 @@
 class Drone : public Entity
 {
 public:
-	Drone(std::initializer_list<sf::Vector2f> points);
+	Drone(std::vector<sf::Vector2f> points);
 	~Drone();
 	virtual void update(float time) override;
 private:

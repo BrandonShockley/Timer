@@ -18,6 +18,7 @@ public:
 	void handleInput(sf::RenderWindow& window);
 	sf::Vector2f getPlayerSpawn();
 	bool isCompleted();
+	bool isDead();
 private:
 	void loadMapData(const std::string path);
 	//Checks if the player has reached the end
@@ -47,6 +48,7 @@ private:
 	Drone* drone_;
 
 	bool completed_;
+	bool died_;
 
 	static const float ZOOM;
 	static const float PARALLAX_MODIFIER;

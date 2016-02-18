@@ -4,12 +4,14 @@
 #include "Entity.h"
 #include "Level.h"
 #include "Menu.h"
+#include "GameOver.h"
 
 enum GameState
 {
 	MENU,
 	PLAYING,
-	PAUSED,
+	GAME_OVER,
+	COMPLETE,
 	STOPPED
 };
 
@@ -30,8 +32,8 @@ private:
 
 	sf::RenderWindow& window_;
 	GameState gameState_;
-	std::vector<Entity*> entities_;
 	std::vector<Level*> levels_;
 	Menu menu_;
+	GameOver gameOverScreen_;
 };
 
