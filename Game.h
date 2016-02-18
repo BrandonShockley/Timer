@@ -31,6 +31,7 @@ private:
 	unsigned int currentLevel_;
 
 	sf::RenderWindow& window_;
+	sf::View view_;
 	GameState gameState_;
 	std::vector<Level*> levels_;
 	Menu menu_;

@@ -4,11 +4,11 @@
 
 const unsigned int Game::TARGET_FRAMERATE = 60;
 
-Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0)
+Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0), view_(window.getView())
 {
 	gameState_ = GameState::MENU;
-	levels_.push_back(new Level("maps/test.tmx"));
-	//levels_.push_back(new Level("maps/ping.tmx"));
+	//levels_.push_back(new Level("maps/test.tmx"));
+	levels_.push_back(new Level("maps/ping.tmx"));
 	gameLoop();
 }
 
@@ -92,7 +92,8 @@ void Game::render()
 {
 	if (gameState_ == GameState::MENU)
 	{
-		menu_.render(window_);
+		window_.setView(view_);
+	 	menu_.render(window_);
 	}
 	if (gameState_ == GameState::PLAYING)
 	{
@@ -101,6 +102,7 @@ void Game::render()
 	}
 	if (gameState_ == GameState::GAME_OVER)
 	{
+		window_.setView(view_);
 		gameOverScreen_.render(window_);
 		window_.setMouseCursorVisible(true);
 	}
