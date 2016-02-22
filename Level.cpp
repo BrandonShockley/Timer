@@ -101,8 +101,8 @@ std::string Level::getPath()
 
 void Level::restart()
 {
-	//delete(player_);
-	//delete(drone_);
+	delete(player_);
+	delete(drone_);
 	player_ = new Player(playerSpawnPoint_);
 	drone_ = new Drone(vec);
 }

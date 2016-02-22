@@ -27,13 +27,12 @@ void Game::gameLoop()
 		{
 			pastTime = clock.getElapsedTime().asSeconds();
 			processInput();
-			while (pastTime < 1.0f / TARGET_FRAMERATE)
-			{
+			do {
 				float currentTime = clock.getElapsedTime().asSeconds();
 				float deltaTime = currentTime - pastTime;
-				pastTime = currentTime;
 				update(deltaTime);
-			}
+				pastTime = currentTime;
+			} while (pastTime < 1.0f / TARGET_FRAMERATE);
 			printf("%i\n", gameState_);
 			render();
 			clock.restart();

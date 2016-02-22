@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="500" height="200" tilewidth="128" tileheight="128" nextobjectid="60">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="500" height="200" tilewidth="128" tileheight="128" nextobjectid="61">
  <properties>
   <property name="background" value="assets/backgrounds/skyline.jpg"/>
  </properties>
- <tileset firstgid="1" name="scifi_platformTiles_32x32" tilewidth="128" tileheight="128" tilecount="187">
+ <tileset firstgid="1" name="scifi_platformTiles_32x32" tilewidth="128" tileheight="128" tilecount="187" columns="17">
   <image source="../assets/tiles/scifi_platformTiles_32x32.png" width="2240" height="1472"/>
  </tileset>
  <layer name="Tile Layer 1" width="500" height="200">
@@ -17008,7 +17008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -17508,6 +17508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -18007,8 +18008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -18508,6 +18508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -19007,8 +19008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -19508,6 +19508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -20007,6 +20008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -20506,6 +20508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -21005,6 +21008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -21504,11 +21508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -22008,6 +22008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -22507,6 +22508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -23006,9 +23008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -23508,6 +23508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -24007,8 +24008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -24508,6 +24508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -25007,6 +25008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -25506,6 +25508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -25515,6 +25518,9 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
+   <tile gid="18"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -26002,6 +26008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -26501,6 +26508,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -27000,6 +27008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -27499,6 +27508,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="18"/>
+   <tile gid="36"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -27997,18 +28008,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="18"/>
    <tile gid="35"/>
    <tile gid="35"/>
    <tile gid="35"/>
@@ -100011,10 +100011,7 @@
   </data>
  </layer>
  <objectgroup name="PlayerSpawn">
-  <object id="8" x="4652" y="4912"/>
- </objectgroup>
- <objectgroup name="Finish">
-  <object id="9" x="2168" y="5976"/>
+  <object id="8" x="4716" y="6528"/>
  </objectgroup>
  <objectgroup color="#ff0000" name="DronePath">
   <object id="35" x="512" y="2224"/>
@@ -100028,6 +100025,9 @@
   <object id="56" x="3248" y="5440"/>
   <object id="57" x="3024" y="5712" height="8"/>
   <object id="58" x="2480" y="5744"/>
-  <object id="59" x="2216" y="5984"/>
+  <object id="59" x="2168.48" y="5976.08"/>
+ </objectgroup>
+ <objectgroup name="Finish">
+  <object id="60" x="4120" y="3224"/>
  </objectgroup>
 </map>
