@@ -1,13 +1,19 @@
 #include "Level.h"
 #include "Error.h"
 #include <pugixml\pugixml.hpp>
+#include <SFML\Audio.hpp>
 
 const float Level::ZOOM = 2500;
 const float Level::PARALLAX_MODIFIER = 24;
 const float Level::BACKGROUND_SCALE = 4;
 
-Level::Level(std::string path) : completed_(false), died_(false)
+Level::Level(std::string path) : completed_(false), died_(false), path_(path)
 {
+	buffer_.loadFromFile("assets/drone/drone.wav");
+
+	//sound_.setLoop(true);
+	sound_.setAttenuation(1);
+
 	loadMapData(path);
 	player_ = new Player(playerSpawnPoint_);
 	//drone_ = new Drone({ sf::Vector2f(500,500), sf::Vector2f(10000, 1000) , sf::Vector2f(500,500), sf::Vector2f(1000, 10000)});
@@ -47,17 +53,30 @@ void Level::render(sf::RenderWindow& window)
 
 void Level::update(float time)
 {
+	
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
+	drone_->nextLocation_ = sf::Vector2f(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	drone_->update(time);
 	//Parallax effect
 	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 3 - player_->getPosition().x / PARALLAX_MODIFIER,
 		player_->getPosition().y - background_->getBounds().height / 3 - player_->getPosition().y / PARALLAX_MODIFIER));
 	checkComplete();
+	sf::Listener::setPosition(player_->getPosition().x + player_->getBounds().width / 2, 0, player_->getPosition().y + player_->getBounds().height / 2);
+	if (sound_.getStatus() != sf::SoundSource::Status::Playing && !died_ && !completed_)
+	{
+		sound_.setBuffer(buffer_);
+		sound_.play();
+	}
+	else if (died_ || completed_)
+		stopSounds();
+	sound_.setPosition(drone_->getPosition().x, 0, drone_->getPosition().y);
+	sound_.setMinDistance(500.f);
 }
 
 void Level::handleInput(sf::RenderWindow & window)
 {
 	player_->handleInput(window);
+	drone_->handleInput(window);
 }
 
 sf::Vector2f Level::getPlayerSpawn()
@@ -73,6 +92,24 @@ bool Level::isCompleted()
 bool Level::isDead()
 {
 	return died_;
+}
+
+std::string Level::getPath()
+{
+	return path_;
+}
+
+void Level::restart()
+{
+	//delete(player_);
+	//delete(drone_);
+	player_ = new Player(playerSpawnPoint_);
+	drone_ = new Drone(vec);
+}
+
+void Level::stopSounds()
+{
+	sound_.stop();
 }
 
 void Level::loadMapData(const std::string path)
@@ -134,7 +171,7 @@ void Level::loadMapData(const std::string path)
 		std::string name = std::string(n.attribute("name").as_string());
 		if (name == "DronePath")
 		{
-			std::vector<sf::Vector2f> vec;
+			
 			for (pugi::xml_node i : n)
 			{
 				vec.push_back(sf::Vector2f(i.attribute("x").as_float(), i.attribute("y").as_float()));
@@ -198,4 +235,6 @@ void Level::checkComplete()
 		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top) ||
 		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top + drone_->getBounds().height))
 		died_ = true;
+	else
+		died_ = false;
 }

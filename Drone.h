@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <SFML\Graphics.hpp>
+#include <SFML\Audio.hpp>
 #include "Entity.h"
 
 class Drone : public Entity
@@ -9,20 +10,42 @@ class Drone : public Entity
 public:
 	Drone(std::vector<sf::Vector2f> points);
 	~Drone();
+	virtual void handleInput(sf::RenderWindow& window) override;
 	virtual void update(float time) override;
+	void restart();
+	sf::Vector2f nextLocation_;
 private:
+	void updateLists();
+
 	std::vector<sf::Vector2f> locations_;
 	sf::Vector2f lastLocation_;
-	sf::Vector2f nextLocation_;
+	
 	unsigned int currentLocation_;
 
 	sf::Vector2f velocity_;
 	sf::Vector2f acceleration_;
 
+	//Awesome timey wimey stuff
+	std::vector<sf::Vector2f> positionList_;
+	std::vector<sf::Vector2f> velocityList_;
+	std::vector<int> currentLocationList_;
+	std::vector<sf::Vector2f> lastLocationList_;
+	std::vector<sf::Vector2f> nextLocationList_;
+	float recordTicker_;
+
+	bool timeTraveling_;
+	float playbackTicker_;
+
 	float angle_;
+
+	//Sound
+	sf::SoundBuffer buffer_;
+	sf::Sound sound_;
 
 	static const std::string DEFAULT_DRONE_TEXTURE;
 	static const float MAX_LINEAR_SPEED;
+	static const float MAX_LINEAR_ACCEL_X;
+	static const float MAX_LINEAR_ACCEL_Y;
 	/*
 	Plan:
 	Constructed with a list of coordinates that are pushed into a vector of sf::vectors

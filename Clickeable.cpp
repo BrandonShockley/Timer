@@ -34,12 +34,4 @@ void Clickeable::handleInput(sf::RenderWindow & window)
 		clicked_ = true;
 	else
 		clicked_ = false;
-	sf::Event e;
-	while (window.pollEvent(e))
-	{
-		switch (e.type)
-		{
-			
-		}
-	}
 }

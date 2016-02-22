@@ -28,6 +28,8 @@ struct ColliderData
 class Player : public Entity
 {
 public:
+	static const float RECORD_INTERVAL;
+	static const float PLAYBACK_INTERVAL;
 	//Path is to folder containing animation images
 	Player(sf::Vector2f position);
 	~Player();
@@ -38,6 +40,7 @@ public:
 	using Entity::render;
 	virtual void render(sf::RenderWindow& window) override;
 	void handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
+	void restart();
 private:
 	void handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void updateLists();
@@ -100,8 +103,7 @@ private:
 	static const float JUMP_TIME;
 	static const float DROP_TIME;
 
-	static const float RECORD_INTERVAL;
-	static const float PLAYBACK_INTERVAL;
+
 
 	static const float FADER_DURATION;
 };

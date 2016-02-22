@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Error.h"
+#include <SFML\Audio.hpp>
 
 const float Player::GRAVITY = 9000;
 const float Player::SLIDE_GRAVITY = 4500;
@@ -11,7 +12,7 @@ const float Player::X_DRAG = 15000;
 const float Player::X_DRAG_AIR = 4000;
 const float Player::JUMP_TIME = 300;
 const float Player::DROP_TIME = 300;
-const float Player::RECORD_INTERVAL = 1.0/240.0;
+const float Player::RECORD_INTERVAL = 1.0/120.0;
 const float Player::PLAYBACK_INTERVAL = 1.0/60.0;
 const float Player::FADER_DURATION = .2;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
@@ -327,6 +328,16 @@ void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i t
 				collideRight_.colliding = false;
 		}
 	}
+}
+
+void Player::restart()
+{
+	position_ = positionList_[1];
+	positionList_.clear();
+	velocityList_.clear();
+	stateList_.clear();
+	velocity_ = sf::Vector2f(0, 0);
+	acceleration_ = sf::Vector2f(0, 0);
 }
 
 void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)

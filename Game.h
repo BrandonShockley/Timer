@@ -5,6 +5,7 @@
 #include "Level.h"
 #include "Menu.h"
 #include "GameOver.h"
+#include "Winner.h"
 
 enum GameState
 {
@@ -36,5 +37,6 @@ private:
 	std::vector<Level*> levels_;
 	Menu menu_;
 	GameOver gameOverScreen_;
+	Winner winner_;
 };
 

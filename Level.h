@@ -19,10 +19,16 @@ public:
 	sf::Vector2f getPlayerSpawn();
 	bool isCompleted();
 	bool isDead();
+	std::string getPath();
+	void restart();
+	void stopSounds();
 private:
 	void loadMapData(const std::string path);
 	//Checks if the player has reached the end
 	void checkComplete();
+
+	std::vector<sf::Vector2f> vec;
+	std::string path_;
 
 	std::vector<std::vector<Tile>> grid_;
 	int mapWidth_;
@@ -46,6 +52,10 @@ private:
 	sf::Vector2f finishPoint_;
 	Player* player_;
 	Drone* drone_;
+
+	//Sound
+	sf::SoundBuffer buffer_;
+	sf::Sound sound_;
 
 	bool completed_;
 	bool died_;
