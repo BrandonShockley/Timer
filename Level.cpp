@@ -34,7 +34,7 @@ Level::~Level()
 
 void Level::render(sf::RenderWindow& window)
 {
-	sf::View view;
+	//sf::View view;
 	view.setSize(window.getDefaultView().getSize() * ZOOM/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
 	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	window.setView(view);
@@ -53,7 +53,10 @@ void Level::render(sf::RenderWindow& window)
 
 void Level::update(float time)
 {
-	
+	if (player_->restarting && !drone_->restarting)
+		drone_->restarting = true;
+	else if (!player_->restarting && drone_->restarting)
+		player_->restarting = true;
 	player_->update(time, grid_, sf::Vector2i(tileSet_.tileWidth, tileSet_.tileHeight));
 	drone_->nextLocation_ = sf::Vector2f(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	drone_->update(time);
@@ -101,10 +104,12 @@ std::string Level::getPath()
 
 void Level::restart()
 {
-	delete(player_);
+	/*delete(player_);
 	delete(drone_);
 	player_ = new Player(playerSpawnPoint_);
-	drone_ = new Drone(vec);
+	drone_ = new Drone(vec);*/
+	player_->restarting = true;
+	drone_->restarting = true;
 }
 
 void Level::stopSounds()
@@ -197,7 +202,25 @@ void Level::loadMapData(const std::string path)
 		{
 			for (int j = 0; j < mapWidth_; j++)
 			{
-				if (l.attribute("gid").as_int() != 0)
+				//Gid 0 = Air
+				if (l.attribute("gid").as_int() == 0)
+				{
+					grid_[j][i].type = TileType::NONSOLID;
+				}
+				else if (l.attribute("gid").as_int() == 35)
+				{
+					//Grabs corresponding tile set coordinate
+					int gid = l.attribute("gid").as_int() - 1;
+					int y = (int)floor(gid / (tileSet_.imageWidth / tileSet_.tileWidth)) * tileSet_.tileHeight;
+					int x = (gid - (y / tileSet_.tileWidth * (tileSet_.imageWidth / tileSet_.tileWidth))) * tileSet_.tileWidth;
+
+					//Specifies tile type at coordinate
+					grid_[j][i].type = TileType::NONSOLID;
+					//Specifies tile entity
+					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
+				}
+				else
 				{
 					//Grabs corresponding tile set coordinate
 					int gid = l.attribute("gid").as_int() - 1;
@@ -207,12 +230,8 @@ void Level::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::SOLID;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)), 
+					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
-				}
-				else //Gid = 0 indicates air tile
-				{
-					grid_[j][i].type = TileType::NONSOLID;
 				}
 				l = l.next_sibling("tile");
 			}
@@ -234,7 +253,7 @@ void Level::checkComplete()
 		player_->getBounds().contains(drone_->getBounds().left, drone_->getBounds().top + drone_->getBounds().height) ||
 		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top) ||
 		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top + drone_->getBounds().height) ||
-		player_->getPosition().y + player_->getBounds().height > mapHeight_ * tileSet_.tileHeight)
+		player_->getPosition().y + player_->getBounds().height > mapHeight_ * tileSet_.tileHeight && !player_->restarting)
 		died_ = true;
 	else
 		died_ = false;

@@ -3,11 +3,15 @@
 #include <cmath>
 
 const std::string Drone::DEFAULT_DRONE_TEXTURE = "assets/drone/drone.png";
-const float Drone::MAX_LINEAR_SPEED = 2000;
-const float Drone::MAX_LINEAR_ACCEL_X = 0;//12000;
-const float Drone::MAX_LINEAR_ACCEL_Y = 0;//11000;
+const float Drone::MAX_LINEAR_SPEED = 4000;
+const float Drone::MAX_LINEAR_ACCEL_X = 11000;
+const float Drone::MAX_LINEAR_ACCEL_Y = 10000;
 
-Drone::Drone(std::vector<sf::Vector2f> points) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), currentLocation_(1), locations_(points), timeTraveling_(false)
+Drone::Drone(std::vector<sf::Vector2f> points) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), 
+currentLocation_(1), 
+locations_(points), 
+reverseToggle_(false),
+timeTraveling_(false)
 {
 	sprite_.setScale(1.6, 1.6);
 	setPosition(locations_[0]);
@@ -22,7 +26,7 @@ Drone::~Drone()
 
 void Drone::handleInput(sf::RenderWindow & window)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
 		timeTraveling_ = true;
 	}
@@ -32,7 +36,7 @@ void Drone::handleInput(sf::RenderWindow & window)
 
 void Drone::update(float time)
 {
-	if (!timeTraveling_)
+	if (!timeTraveling_ && !restarting)
 	{
 		sf::FloatRect i = getBounds();
 		//Check if at checkpoint
@@ -78,19 +82,49 @@ void Drone::update(float time)
 	else
 	{
 		playbackTicker_ += time;
-		if (playbackTicker_ >= Player::PLAYBACK_INTERVAL && positionList_.size() > 1)
+		if (restarting)
 		{
-			position_ = positionList_[positionList_.size() - 1];
-			positionList_.pop_back();
-			velocity_ = velocityList_[velocityList_.size() - 1];
-			velocityList_.pop_back();
-			currentLocation_ = currentLocationList_[currentLocationList_.size() - 1];
-			currentLocationList_.pop_back();
-			nextLocation_ = nextLocationList_[nextLocationList_.size() - 1];
-			nextLocationList_.pop_back();
-			lastLocation_ = lastLocationList_[lastLocationList_.size() - 1];
-			lastLocationList_.pop_back();
-			playbackTicker_ = 0;
+			if (!reverseToggle_)
+			{
+				exponentialReverse_.restart();
+				reverseToggle_ = true;
+			}
+			if (playbackTicker_ >= Player::PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1)
+			{
+				position_ = positionList_[positionList_.size() - 1];
+				positionList_.pop_back();
+				velocity_ = velocityList_[velocityList_.size() - 1];
+				velocityList_.pop_back();
+				currentLocation_ = currentLocationList_[currentLocationList_.size() - 1];
+				currentLocationList_.pop_back();
+				nextLocation_ = nextLocationList_[nextLocationList_.size() - 1];
+				nextLocationList_.pop_back();
+				lastLocation_ = lastLocationList_[lastLocationList_.size() - 1];
+				lastLocationList_.pop_back();
+				playbackTicker_ = 0;
+			}
+		}
+		else
+		{
+			if (playbackTicker_ >= Player::PLAYBACK_INTERVAL && positionList_.size() > 1)
+			{
+				position_ = positionList_[positionList_.size() - 1];
+				positionList_.pop_back();
+				velocity_ = velocityList_[velocityList_.size() - 1];
+				velocityList_.pop_back();
+				currentLocation_ = currentLocationList_[currentLocationList_.size() - 1];
+				currentLocationList_.pop_back();
+				nextLocation_ = nextLocationList_[nextLocationList_.size() - 1];
+				nextLocationList_.pop_back();
+				lastLocation_ = lastLocationList_[lastLocationList_.size() - 1];
+				lastLocationList_.pop_back();
+				playbackTicker_ = 0;
+			}
+		}
+		if (positionList_.size() <= 1)
+		{
+			restarting = false;
+			reverseToggle_ = false;
 		}
 	}
 	sprite_.setRotation(velocity_.x / 50);

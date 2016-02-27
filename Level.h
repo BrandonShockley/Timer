@@ -13,9 +13,9 @@ public:
 	Level(const std::string path);
 	~Level();
 
-	void render(sf::RenderWindow& window);
-	void update(float time);
-	void handleInput(sf::RenderWindow& window);
+	virtual void render(sf::RenderWindow& window);
+	virtual void update(float time);
+	virtual void handleInput(sf::RenderWindow& window);
 	sf::Vector2f getPlayerSpawn();
 	bool isCompleted();
 	bool isDead();
@@ -29,6 +29,8 @@ private:
 
 	std::vector<sf::Vector2f> vec;
 	std::string path_;
+
+	sf::View view;
 
 	std::vector<std::vector<Tile>> grid_;
 	int mapWidth_;

@@ -51,7 +51,7 @@
     <ClCompile Include="Winner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DrainBar.cpp">
+    <ClCompile Include="Cutscene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,7 +92,7 @@
     <ClInclude Include="Winner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DrainBar.h">
+    <ClInclude Include="Cutscene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

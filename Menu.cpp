@@ -35,7 +35,7 @@ void Menu::update(float time)
 	}
 	if (buttons_[EXIT]->clicked_)
 		selection_ = EXIT;
-	if (buttons_[START]->clicked_)
+	if (buttons_[START]->clicked_ || sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		selection_ = START;
 }
 

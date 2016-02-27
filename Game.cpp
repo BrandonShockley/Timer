@@ -86,19 +86,19 @@ void Game::update(float time)
 			gameState_ = GameState::COMPLETE;
 		else if (levels_[currentLevel_]->isDead())
 		{
-			gameState_ = GameState::GAME_OVER;
+			levels_[currentLevel_]->restart();
 			return;
 		}
 	}
 	if (gameState_ == GameState::GAME_OVER)
 	{
-		gameOverScreen_.handleInput(sf::RenderWindow());
+		/*gameOverScreen_.handleInput(sf::RenderWindow());
 		gameOverScreen_.update(time);
 		if (gameOverScreen_.clicked)
-		{
+		{*/
 			gameState_ = GameState::PLAYING;
 			levels_[currentLevel_]->restart();
-		}
+		//}
 	}
 	if (gameState_ == GameState::COMPLETE)
 	{

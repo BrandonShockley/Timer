@@ -14,6 +14,8 @@ public:
 	virtual void update(float time) override;
 	void restart();
 	sf::Vector2f nextLocation_;
+
+	bool restarting;
 private:
 	void updateLists();
 
@@ -35,6 +37,9 @@ private:
 
 	bool timeTraveling_;
 	float playbackTicker_;
+
+	bool reverseToggle_;
+	sf::Clock exponentialReverse_;
 
 	float angle_;
 

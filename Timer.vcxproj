@@ -162,7 +162,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Clickeable.cpp" />
-    <ClCompile Include="DrainBar.cpp" />
+    <ClCompile Include="Cutscene.cpp" />
     <ClCompile Include="Drone.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -177,7 +177,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Clickeable.h" />
-    <ClInclude Include="DrainBar.h" />
+    <ClInclude Include="Cutscene.h" />
     <ClInclude Include="Drone.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />

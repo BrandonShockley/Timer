@@ -42,9 +42,17 @@ public:
 	virtual void render(sf::RenderWindow& window) override;
 	void handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void restart();
+
+	bool restarting;
 private:
 	void handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void updateLists();
+	
+	//Key Bindings
+	sf::Keyboard::Key jumpKey_;
+	sf::Keyboard::Key leftKey_;
+	sf::Keyboard::Key rightKey_;
+	sf::Keyboard::Key timeKey_;
 
 	sf::Vector2f velocity_;
 	sf::Vector2f acceleration_;
@@ -73,6 +81,9 @@ private:
 	bool timeTraveling_;
 	float playbackTicker_;
 
+	bool restartToggle_;
+	sf::Clock exponentialReverse_;
+
 	unsigned int timeLimiter_;
 
 	sf::RectangleShape gradient_;
@@ -92,6 +103,7 @@ private:
 	sf::Shader rectShader_;
 	//Used for fading effects
 	sf::Clock fader_;
+	bool faderBool_;
 
 	static const float GRAVITY;
 	static const float SLIDE_GRAVITY;
