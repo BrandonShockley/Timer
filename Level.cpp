@@ -3,7 +3,7 @@
 #include <pugixml\pugixml.hpp>
 #include <SFML\Audio.hpp>
 
-const float Level::ZOOM = 2500;
+const float Level::ZOOM = 2.5;
 const float Level::PARALLAX_MODIFIER = 24;
 const float Level::BACKGROUND_SCALE = 4;
 
@@ -35,7 +35,7 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	sf::View view;
-	view.setSize(ZOOM * 1.6, ZOOM * 1.1/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
+	view.setSize(window.getDefaultView().getSize() * ZOOM/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
 	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	window.setView(view);
 	background_->render(window);
@@ -233,7 +233,8 @@ void Level::checkComplete()
 	if (player_->getBounds().contains(drone_->getBounds().left, drone_->getBounds().top) ||
 		player_->getBounds().contains(drone_->getBounds().left, drone_->getBounds().top + drone_->getBounds().height) ||
 		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top) ||
-		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top + drone_->getBounds().height))
+		player_->getBounds().contains(drone_->getBounds().left + drone_->getBounds().width, drone_->getBounds().top + drone_->getBounds().height) ||
+		player_->getPosition().y + player_->getBounds().height > mapHeight_ * tileSet_.tileHeight)
 		died_ = true;
 	else
 		died_ = false;

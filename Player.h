@@ -30,6 +30,7 @@ class Player : public Entity
 public:
 	static const float RECORD_INTERVAL;
 	static const float PLAYBACK_INTERVAL;
+	static const float RECORD_LIMIT;
 	//Path is to folder containing animation images
 	Player(sf::Vector2f position);
 	~Player();
@@ -72,7 +73,10 @@ private:
 	bool timeTraveling_;
 	float playbackTicker_;
 
+	unsigned int timeLimiter_;
+
 	sf::RectangleShape gradient_;
+	sf::RectangleShape timeBar_;
 
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
@@ -102,8 +106,6 @@ private:
 	static const unsigned int DEFAULT_ANIMATION_FRAMES;
 	static const float JUMP_TIME;
 	static const float DROP_TIME;
-
-
 
 	static const float FADER_DURATION;
 };
