@@ -3,7 +3,7 @@
  <properties>
   <property name="background" value="assets/backgrounds/skyline.jpg"/>
  </properties>
- <tileset firstgid="1" name="scifi_platformTiles_32x32" tilewidth="128" tileheight="128" tilecount="187" columns="17">
+ <tileset firstgid="1" name="scifi_platformTiles_32x32" tilewidth="128" tileheight="128" tilecount="187">
   <image source="../assets/tiles/scifi_platformTiles_32x32.png" width="2240" height="1472"/>
  </tileset>
  <layer name="Tile Layer 1" width="500" height="200">
@@ -100013,19 +100013,8 @@
  <objectgroup name="PlayerSpawn">
   <object id="8" x="4676" y="6888"/>
  </objectgroup>
- <objectgroup color="#ff0000" name="DronePath">
+ <objectgroup color="#ff0000" name="DroneSpawn">
   <object id="35" x="512" y="2224"/>
-  <object id="36" x="576" y="3912"/>
-  <object id="37" x="1224" y="3936"/>
-  <object id="38" x="1880" y="4120"/>
-  <object id="39" x="2656" y="4408"/>
-  <object id="53" x="3248" y="4632"/>
-  <object id="54" x="3728" y="4848"/>
-  <object id="55" x="3832" y="5336"/>
-  <object id="56" x="3248" y="5440"/>
-  <object id="57" x="3024" y="5712" height="8"/>
-  <object id="58" x="2480" y="5744"/>
-  <object id="59" x="2168.48" y="5976.08"/>
  </objectgroup>
  <objectgroup name="Finish">
   <object id="60" x="4120" y="3224"/>

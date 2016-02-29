@@ -2,7 +2,7 @@
 
 
 
-Cutscene::Cutscene() : Level("m")
+Cutscene::Cutscene(const std::string path) : Level(path)
 {
 }
 

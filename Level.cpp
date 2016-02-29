@@ -174,14 +174,14 @@ void Level::loadMapData(const std::string path)
 	for (pugi::xml_node n : doc.child("map").children("objectgroup"))
 	{
 		std::string name = std::string(n.attribute("name").as_string());
-		if (name == "DronePath")
+		if (name == "DroneSpawn")
 		{
 			
 			for (pugi::xml_node i : n)
 			{
 				vec.push_back(sf::Vector2f(i.attribute("x").as_float(), i.attribute("y").as_float()));
 			}
-			drone_ = new Drone(vec);
+			drone_ = new Drone(vec[0]);
 		}
 	}
 

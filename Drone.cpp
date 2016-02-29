@@ -7,16 +7,17 @@ const float Drone::MAX_LINEAR_SPEED = 4000;
 const float Drone::MAX_LINEAR_ACCEL_X = 11000;
 const float Drone::MAX_LINEAR_ACCEL_Y = 10000;
 
-Drone::Drone(std::vector<sf::Vector2f> points) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), 
+Drone::Drone(sf::Vector2f spawnPoint) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), 
 currentLocation_(1), 
-locations_(points), 
 reverseToggle_(false),
-timeTraveling_(false)
+timeTraveling_(false),
+restarting(false)
 {
+	locations_.push_back(spawnPoint);
 	sprite_.setScale(1.6, 1.6);
 	setPosition(locations_[0]);
 	lastLocation_ = locations_[0];
-	nextLocation_ = locations_[1];
+	nextLocation_ = locations_[0];
 	sprite_.setOrigin(getBounds().width / 2, getBounds().height / 2);
 }
 
@@ -39,14 +40,6 @@ void Drone::update(float time)
 	if (!timeTraveling_ && !restarting)
 	{
 		sf::FloatRect i = getBounds();
-		//Check if at checkpoint
-		if ((position_.x < nextLocation_.x) && (position_.y < nextLocation_.y) && (position_.x + i.width > nextLocation_.x) && (position_.y + i.height > nextLocation_.y))
-		{
-			lastLocation_ = nextLocation_;
-			currentLocation_++;
-			if (!(currentLocation_ >= locations_.size()))
-				nextLocation_ = locations_[currentLocation_];
-		}
 		//Set velocity to reach next checkpoint
 		if (nextLocation_.x - position_.x > 0)
 		{
@@ -95,12 +88,6 @@ void Drone::update(float time)
 				positionList_.pop_back();
 				velocity_ = velocityList_[velocityList_.size() - 1];
 				velocityList_.pop_back();
-				currentLocation_ = currentLocationList_[currentLocationList_.size() - 1];
-				currentLocationList_.pop_back();
-				nextLocation_ = nextLocationList_[nextLocationList_.size() - 1];
-				nextLocationList_.pop_back();
-				lastLocation_ = lastLocationList_[lastLocationList_.size() - 1];
-				lastLocationList_.pop_back();
 				playbackTicker_ = 0;
 			}
 		}
@@ -112,12 +99,6 @@ void Drone::update(float time)
 				positionList_.pop_back();
 				velocity_ = velocityList_[velocityList_.size() - 1];
 				velocityList_.pop_back();
-				currentLocation_ = currentLocationList_[currentLocationList_.size() - 1];
-				currentLocationList_.pop_back();
-				nextLocation_ = nextLocationList_[nextLocationList_.size() - 1];
-				nextLocationList_.pop_back();
-				lastLocation_ = lastLocationList_[lastLocationList_.size() - 1];
-				lastLocationList_.pop_back();
 				playbackTicker_ = 0;
 			}
 		}
@@ -139,8 +120,7 @@ void Drone::restart()
 	lastLocationList_.clear();
 	nextLocationList_.clear();
 	currentLocation_ = 1;
-	lastLocation_ = locations_[0];
-	nextLocation_ = locations_[1];
+	nextLocation_ = locations_[0];
 }
 
 void Drone::updateLists()

@@ -8,7 +8,7 @@
 class Drone : public Entity
 {
 public:
-	Drone(std::vector<sf::Vector2f> points);
+	Drone(sf::Vector2f spawnPoint);
 	~Drone();
 	virtual void handleInput(sf::RenderWindow& window) override;
 	virtual void update(float time) override;
