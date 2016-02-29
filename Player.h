@@ -54,6 +54,12 @@ private:
 	sf::Keyboard::Key rightKey_;
 	sf::Keyboard::Key timeKey_;
 
+	//Extra
+	sf::Keyboard::Key xJumpKey_;
+	sf::Keyboard::Key xLeftKey_;
+	sf::Keyboard::Key xRightKey_;
+	sf::Keyboard::Key xTimeKey_;
+
 	sf::Vector2f velocity_;
 	sf::Vector2f acceleration_;
 	State state_;

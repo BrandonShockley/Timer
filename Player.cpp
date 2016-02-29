@@ -29,7 +29,8 @@ Player::Player(sf::Vector2f position) :
 	restarting(false),
 	faderBool_(false),
 	restartToggle_(false),
-	jumpKey_(sf::Keyboard::Z), rightKey_(sf::Keyboard::Right), leftKey_(sf::Keyboard::Left), timeKey_(sf::Keyboard::X),
+	jumpKey_(sf::Keyboard::Up), rightKey_(sf::Keyboard::Right), leftKey_(sf::Keyboard::Left), timeKey_(sf::Keyboard::RShift),
+	xJumpKey_(sf::Keyboard::W), xRightKey_(sf::Keyboard::D), xLeftKey_(sf::Keyboard::A), xTimeKey_(sf::Keyboard::LShift),
 	playbackTicker_(0.0f),
 	idleAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/idleLeft.png", 1)),
 	idleAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/idleRight.png", 1)),
@@ -64,7 +65,7 @@ void Player::update(float time, std::vector<std::vector<Tile>> grid, sf::Vector2
 void Player::handleInput(sf::RenderWindow & window)
 {
 	//Time traveling! :D
-	if (sf::Keyboard::isKeyPressed(timeKey_))
+	if (sf::Keyboard::isKeyPressed(timeKey_) || sf::Keyboard::isKeyPressed(xTimeKey_))
 	{
 		timeTraveling_ = true;
 		return;
@@ -74,26 +75,26 @@ void Player::handleInput(sf::RenderWindow & window)
 		timeTraveling_ = false;
 	}
 	//Jumping
-	if (sf::Keyboard::isKeyPressed(jumpKey_) && onGround_.colliding && !wPress_)
+	if ((sf::Keyboard::isKeyPressed(jumpKey_) || sf::Keyboard::isKeyPressed(xJumpKey_)) && onGround_.colliding && !wPress_)
 	{
 		jump_ = true;
 		jumped_ = true;
 		canGoHigher_ = true;
 		jumpTimer_.restart();
 	}
-	if (sf::Keyboard::isKeyPressed(jumpKey_) && jumped_ && jumpTimer_.getElapsedTime().asMilliseconds() < JUMP_TIME)
+	if ((sf::Keyboard::isKeyPressed(jumpKey_) || sf::Keyboard::isKeyPressed(xJumpKey_)) && jumped_ && jumpTimer_.getElapsedTime().asMilliseconds() < JUMP_TIME)
 	{
 		if (canGoHigher_)
 			jump_ = true;
 	}
-	if ((!sf::Keyboard::isKeyPressed(jumpKey_) && jumped_) || collideTop_.colliding)
+	if (((!sf::Keyboard::isKeyPressed(jumpKey_) && !sf::Keyboard::isKeyPressed(xJumpKey_)) && jumped_) || collideTop_.colliding)
 	{
 		canGoHigher_ = false;
 		collideTop_.colliding = false;
 	}
 
 	//Wall jump input
-	if (sf::Keyboard::isKeyPressed(jumpKey_) && state_ == State::WALL_CLING_RIGHT && !wPress_)
+	if ((sf::Keyboard::isKeyPressed(jumpKey_) || sf::Keyboard::isKeyPressed(xJumpKey_)) && state_ == State::WALL_CLING_RIGHT && !wPress_)
 	{
 		jump_ = true;
 		jumped_ = true;
@@ -102,7 +103,7 @@ void Player::handleInput(sf::RenderWindow & window)
 		state_ = State::WALL_JUMP_LEFT;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(jumpKey_) && state_ == State::WALL_CLING_LEFT && !wPress_)
+	if ((sf::Keyboard::isKeyPressed(jumpKey_) || sf::Keyboard::isKeyPressed(xJumpKey_)) && state_ == State::WALL_CLING_LEFT && !wPress_)
 	{
 		jump_ = true;
 		jumped_ = true;
@@ -114,54 +115,54 @@ void Player::handleInput(sf::RenderWindow & window)
 
 	//Peel off input
 	//Right
-	if (sf::Keyboard::isKeyPressed(leftKey_) && state_ == State::WALL_CLING_RIGHT && !startDrop_)
+	if ((sf::Keyboard::isKeyPressed(leftKey_) || sf::Keyboard::isKeyPressed(xLeftKey_)) && state_ == State::WALL_CLING_RIGHT && !startDrop_)
 	{
 		dropTimer_.restart();
 		startDrop_ = true;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(leftKey_) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
+	if ((sf::Keyboard::isKeyPressed(leftKey_) || sf::Keyboard::isKeyPressed(xLeftKey_)) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
 	{
 		state_ = State::MOVING_LEFT;
 		position_.x -= 1;
 		startDrop_ = false;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(leftKey_) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
+	if ((sf::Keyboard::isKeyPressed(leftKey_) || sf::Keyboard::isKeyPressed(xLeftKey_)) && state_ == State::WALL_CLING_RIGHT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
 		return;
 	//Left
-	if (sf::Keyboard::isKeyPressed(rightKey_) && state_ == State::WALL_CLING_LEFT && !startDrop_)
+	if ((sf::Keyboard::isKeyPressed(rightKey_) || sf::Keyboard::isKeyPressed(xRightKey_)) && state_ == State::WALL_CLING_LEFT && !startDrop_)
 	{
 		dropTimer_.restart();
 		startDrop_ = true;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(rightKey_) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
+	if ((sf::Keyboard::isKeyPressed(rightKey_) || sf::Keyboard::isKeyPressed(xRightKey_)) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() > DROP_TIME)
 	{
 		state_ = State::MOVING_RIGHT;
 		position_.x += 1;
 		startDrop_ = false;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(rightKey_) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
+	if ((sf::Keyboard::isKeyPressed(rightKey_) || sf::Keyboard::isKeyPressed(xRightKey_)) && state_ == State::WALL_CLING_LEFT && startDrop_ && dropTimer_.getElapsedTime().asMilliseconds() < DROP_TIME)
 		return;
 	startDrop_ = false;
 
 	//Prevents constant jumping from held down W
-	if (sf::Keyboard::isKeyPressed(jumpKey_))
+	if (sf::Keyboard::isKeyPressed(jumpKey_) || sf::Keyboard::isKeyPressed(xJumpKey_))
 	{
 		wPress_ = true;
 	}
-	else if (!sf::Keyboard::isKeyPressed(jumpKey_))
+	else if (!sf::Keyboard::isKeyPressed(jumpKey_) && !sf::Keyboard::isKeyPressed(xJumpKey_))
 	{
 		wPress_ = false;
 	}
-	if (sf::Keyboard::isKeyPressed(rightKey_) && !sf::Keyboard::isKeyPressed(leftKey_))
+	if ((sf::Keyboard::isKeyPressed(rightKey_) && !sf::Keyboard::isKeyPressed(leftKey_)) || (sf::Keyboard::isKeyPressed(xRightKey_) && !sf::Keyboard::isKeyPressed(xLeftKey_)))
 	{
 		state_ = State::MOVING_RIGHT;
 		return;
 	}
-	if (sf::Keyboard::isKeyPressed(leftKey_) && !sf::Keyboard::isKeyPressed(rightKey_))
+	if ((sf::Keyboard::isKeyPressed(leftKey_) && !sf::Keyboard::isKeyPressed(rightKey_)) || (sf::Keyboard::isKeyPressed(xLeftKey_) && !sf::Keyboard::isKeyPressed(xRightKey_)))
 	{
 		state_ = State::MOVING_LEFT;
 		return;
