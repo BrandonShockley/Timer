@@ -5,11 +5,12 @@
 const float Player::GRAVITY = 9000;
 const float Player::SLIDE_GRAVITY = 4500;
 const float Player::JUMP_VELOCITY = -3300;
-const float Player::MOVE_ACCELERATION = 12000;
+const float Player::MOVE_ACCELERATION = 15000;
 const float Player::MAX_X_SPEED = 2500;
 const float Player::MAX_Y_SPEED = 4000;
 const float Player::X_DRAG = 15000;
 const float Player::X_DRAG_AIR = 8000;
+const float Player::X_DRAG_SLIDE = 2000;
 const float Player::JUMP_TIME = 300;
 const float Player::DROP_TIME = 300;
 const float Player::RECORD_INTERVAL = 1.0/120.0;
@@ -17,7 +18,6 @@ const float Player::PLAYBACK_INTERVAL = 1.0/60.0;
 const float Player::FADER_DURATION = .2;
 const std::string Player::DEFAULT_PLAYER_TEXTURE = "assets/PlayerAnimation/idleRight.png";
 const std::string Player::DEFAULT_ANIMATION_PATH = "assets/PlayerAnimation";
-const unsigned int Player::DEFAULT_ANIMATION_FRAMES = 60;
 
 //Path is to folder containing animation images
 Player::Player(sf::Vector2f position) :
@@ -29,22 +29,25 @@ Player::Player(sf::Vector2f position) :
 	restarting(false),
 	faderBool_(false),
 	restartToggle_(false),
-	jumpKey_(sf::Keyboard::Up), rightKey_(sf::Keyboard::Right), leftKey_(sf::Keyboard::Left), timeKey_(sf::Keyboard::RShift),
-	xJumpKey_(sf::Keyboard::W), xRightKey_(sf::Keyboard::D), xLeftKey_(sf::Keyboard::A), xTimeKey_(sf::Keyboard::LShift),
+	jumpKey_(sf::Keyboard::Up), rightKey_(sf::Keyboard::Right), leftKey_(sf::Keyboard::Left), timeKey_(sf::Keyboard::RShift), downKey_(sf::Keyboard::Down),
+	xJumpKey_(sf::Keyboard::W), xRightKey_(sf::Keyboard::D), xLeftKey_(sf::Keyboard::A), xTimeKey_(sf::Keyboard::LShift), xDownKey_(sf::Keyboard::S),
 	playbackTicker_(0.0f),
 	idleAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/idleLeft.png", 1)),
 	idleAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/idleRight.png", 1)),
-	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", DEFAULT_ANIMATION_FRAMES)),
-	runAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/runningLeft.png", DEFAULT_ANIMATION_FRAMES)),
+	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", 60)),
+	runAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/runningLeft.png", 60)),
 	jumpAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/jumpLeft.png", 1)),
 	jumpAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/jumpRight.png", 1)),
 	wallClingAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingLeft.png", 1)),
-	wallClingAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingRight.png", 1))
+	wallClingAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingRight.png", 1)),
+	slideAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/slideLeft.png", 1)),
+	slideAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/slideRight.png", 1))
 {
 	if (!shader_.loadFromFile("shaders/player.frag", sf::Shader::Fragment))
 		fatalError("Failed to load player shader");
 	if (!rectShader_.loadFromFile("shaders/gradient.frag", sf::Shader::Fragment))
 		fatalError("Failed to load gradient shader");
+	
 }
 
 Player::~Player()
@@ -53,6 +56,8 @@ Player::~Player()
 
 void Player::update(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
+	standardHeight = idleAnimationRight_.getNextFrame().getSize().y;
+	crouchHeight = slideAnimationRight_.getNextFrame().getSize().y;
 	handlePhysics(time, grid, tileBounds);
 	recordTicker_ += time;
 	if (recordTicker_ >= RECORD_INTERVAL && !timeTraveling_)
@@ -157,13 +162,46 @@ void Player::handleInput(sf::RenderWindow & window)
 	{
 		wPress_ = false;
 	}
+	if (sf::Keyboard::isKeyPressed(downKey_) || sf::Keyboard::isKeyPressed(xDownKey_))
+	{
+		if (state_ == State::MOVING_RIGHT || state_ == State::SLIDING_RIGHT || state_ == State::IDLE_RIGHT)
+		{
+			if (state_ != State::SLIDING_RIGHT)
+			{
+				position_.y = position_.y + getBounds().height - slideAnimationLeft_.getNextFrame().getSize().y;
+				sprite_.setTexture(slideAnimationRight_.getNextFrame(), true);
+			}
+			state_ = State::SLIDING_RIGHT;
+			return;
+		}
+		else if (state_ == State::MOVING_LEFT || state_ == State::SLIDING_LEFT || state_ == State::IDLE_LEFT)
+		{
+			if (state_ != State::SLIDING_LEFT)
+			{
+				position_.y = position_.y + getBounds().height - slideAnimationLeft_.getNextFrame().getSize().y;
+				sprite_.setTexture(slideAnimationLeft_.getNextFrame(), true);
+			}
+			state_ = State::SLIDING_LEFT;
+			return;
+		}
+	}
 	if ((sf::Keyboard::isKeyPressed(rightKey_) && !sf::Keyboard::isKeyPressed(leftKey_)) || (sf::Keyboard::isKeyPressed(xRightKey_) && !sf::Keyboard::isKeyPressed(xLeftKey_)))
 	{
+		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
+		{
+			position_.y = position_.y + getBounds().height - runAnimationRight_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
+		}
 		state_ = State::MOVING_RIGHT;
 		return;
 	}
 	if ((sf::Keyboard::isKeyPressed(leftKey_) && !sf::Keyboard::isKeyPressed(rightKey_)) || (sf::Keyboard::isKeyPressed(xLeftKey_) && !sf::Keyboard::isKeyPressed(xRightKey_)))
 	{
+		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
+		{
+			position_.y = position_.y + getBounds().height - runAnimationRight_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationLeft_.getNextFrame(), true);
+		}
 		state_ = State::MOVING_LEFT;
 		return;
 	}
@@ -175,13 +213,23 @@ void Player::handleInput(sf::RenderWindow & window)
 	{
 		return;
 	}
-	if (state_ == State::MOVING_LEFT || state_ == State::IDLE_LEFT || state_ == State::WALL_CLING_RIGHT)
+	if (state_ == State::MOVING_LEFT || state_ == State::IDLE_LEFT || state_ == State::WALL_CLING_RIGHT || state_ == State::SLIDING_LEFT)
 	{
+		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
+		{
+			position_.y = position_.y + getBounds().height - runAnimationRight_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationLeft_.getNextFrame(), true);
+		}
 		state_ = State::IDLE_LEFT;
 		return;
 	}
 	else
 	{
+		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
+		{
+			position_.y = position_.y + getBounds().height - runAnimationRight_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
+		}
 		state_ = State::IDLE_RIGHT;
 	}
 
@@ -193,11 +241,11 @@ void Player::render(sf::RenderWindow & window)
 	{
 	case State::IDLE_LEFT:
 		runAnimationLeft_.reset();
-		sprite_.setTexture(idleAnimationLeft_.getNextFrame());
+		sprite_.setTexture(idleAnimationLeft_.getNextFrame(), true);
 		break;
 	case State::IDLE_RIGHT:
 		runAnimationRight_.reset();
-		sprite_.setTexture(idleAnimationRight_.getNextFrame());
+		sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
 		break;
 	case State::MOVING_LEFT:
 		idleAnimationLeft_.reset();
@@ -227,6 +275,16 @@ void Player::render(sf::RenderWindow & window)
 		sprite_.setTexture(wallClingAnimationRight_.getNextFrame());
 		idleAnimationRight_.reset();
 		break;
+	case State::SLIDING_LEFT:
+		sprite_.setTexture(slideAnimationLeft_.getNextFrame(), true);
+		idleAnimationLeft_.reset();
+		runAnimationLeft_.reset();
+		break;
+	case State::SLIDING_RIGHT:
+		sprite_.setTexture(slideAnimationRight_.getNextFrame(), true);
+		idleAnimationRight_.reset();
+		runAnimationRight_.reset();
+		break;
 	}
 
 	if (timeTraveling_ && !faderBool_)
@@ -247,7 +305,7 @@ void Player::render(sf::RenderWindow & window)
 	gradient_.setFillColor(sf::Color::Cyan);
 	gradient_.setSize((sf::Vector2f)window.getView().getSize());
 	gradient_.setOrigin(gradient_.getSize().x / 2, gradient_.getSize().y / 2);
-	gradient_.setPosition(getPosition().x + getBounds().width / 2, getPosition().y + getBounds().height / 2);
+	gradient_.setPosition(getPosition().x/* + getBounds().width / 2*/, getPosition().y + getBounds().height / 2);
 	rectShader_.setParameter("timeWarp", timeTraveling_);
 	rectShader_.setParameter("screenHeight", window.getSize().y);
 	rectShader_.setParameter("faderTime", fader_.getElapsedTime().asSeconds());
@@ -354,6 +412,11 @@ void Player::restart()
 	acceleration_ = sf::Vector2f(0, 0);*/
 }
 
+State Player::getState()
+{
+	return state_;
+}
+
 void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
 {
 	if (!timeTraveling_ && !restarting)
@@ -361,6 +424,28 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		//Take input
 		switch (state_)
 		{
+		case State::SLIDING_LEFT:
+			if (onGround_.colliding)
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_SLIDE, 0);
+			else
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_SLIDE, 0);
+			if (-(abs(velocity_.x) / velocity_.x) != -(abs(velocity_.x + acceleration_.x * time) / (velocity_.x + acceleration_.x * time)))
+			{
+				acceleration_.x = 0.0f;
+				velocity_.x = 0.0f;
+			}
+			break;
+		case State::SLIDING_RIGHT:
+			if (onGround_.colliding)
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_SLIDE, 0);
+			else
+				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG_SLIDE, 0);
+			if (-(abs(velocity_.x) / velocity_.x) != -(abs(velocity_.x + acceleration_.x * time) / (velocity_.x + acceleration_.x * time)))
+			{
+				acceleration_.x = 0.0f;
+				velocity_.x = 0.0f;
+			}
+			break;
 		case State::IDLE_RIGHT:
 			if (onGround_.colliding)
 				acceleration_ = sf::Vector2f(-(abs(velocity_.x) / velocity_.x)*X_DRAG, 0);

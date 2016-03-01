@@ -3,9 +3,9 @@
 #include <cmath>
 
 const std::string Drone::DEFAULT_DRONE_TEXTURE = "assets/drone/drone.png";
-const float Drone::MAX_LINEAR_SPEED = 4000;
-const float Drone::MAX_LINEAR_ACCEL_X = 11000;
-const float Drone::MAX_LINEAR_ACCEL_Y = 10000;
+const float Drone::MAX_LINEAR_SPEED = 000;
+const float Drone::MAX_LINEAR_ACCEL_X = 9000;
+const float Drone::MAX_LINEAR_ACCEL_Y = 7000;
 
 Drone::Drone(sf::Vector2f spawnPoint) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), 
 currentLocation_(1), 
@@ -27,7 +27,7 @@ Drone::~Drone()
 
 void Drone::handleInput(sf::RenderWindow & window)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
 	{
 		timeTraveling_ = true;
 	}

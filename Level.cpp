@@ -35,8 +35,11 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	//sf::View view;
-	view.setSize(window.getDefaultView().getSize() * ZOOM/*(float)(mapWidth_ * tileSet_.tileWidth)) / (1.5 * ZOOM), (float)(mapHeight_ * tileSet_.tileHeight / (1.3 * ZOOM)*/);
-	view.setCenter(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
+	view.setSize(window.getDefaultView().getSize() * ZOOM);
+	if (player_->getState() != State::SLIDING_LEFT && player_->getState() != State::SLIDING_RIGHT)
+		view.setCenter(player_->getPosition().x, player_->getPosition().y + player_->getBounds().height / 2);
+	else
+		view.setCenter(player_->getPosition().x, player_->getPosition().y + player_->crouchHeight - player_->standardHeight / 2);
 	window.setView(view);
 	background_->render(window);
 	for (std::vector<Tile> i : grid_)
@@ -61,8 +64,12 @@ void Level::update(float time)
 	drone_->nextLocation_ = sf::Vector2f(player_->getPosition().x + player_->getBounds().width / 2, player_->getPosition().y + player_->getBounds().height / 2);
 	drone_->update(time);
 	//Parallax effect
-	background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 3 - player_->getPosition().x / PARALLAX_MODIFIER,
-		player_->getPosition().y - background_->getBounds().height / 3 - player_->getPosition().y / PARALLAX_MODIFIER));
+	if (player_->getState() != State::SLIDING_LEFT && player_->getState() != State::SLIDING_RIGHT)
+		background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 3 - player_->getPosition().x / PARALLAX_MODIFIER,
+			player_->getPosition().y - background_->getBounds().height / 3 - player_->getPosition().y / PARALLAX_MODIFIER));
+	else
+		background_->setPosition(sf::Vector2f(player_->getPosition().x - background_->getBounds().width / 3 - player_->getPosition().x / PARALLAX_MODIFIER,
+			player_->getPosition().y + player_->crouchHeight - player_->standardHeight - background_->getBounds().height / 3 - (player_->getPosition().y + player_->crouchHeight - player_->standardHeight) / PARALLAX_MODIFIER));
 	checkComplete();
 	sf::Listener::setPosition(player_->getPosition().x + player_->getBounds().width / 2, 0, player_->getPosition().y + player_->getBounds().height / 2);
 	if (sound_.getStatus() != sf::SoundSource::Status::Playing && !died_ && !completed_)

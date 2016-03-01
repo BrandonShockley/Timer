@@ -16,7 +16,9 @@ enum State
 	WALL_CLING_LEFT,
 	WALL_CLING_RIGHT,
 	WALL_JUMP_LEFT,
-	WALL_JUMP_RIGHT
+	WALL_JUMP_RIGHT,
+	SLIDING_LEFT,
+	SLIDING_RIGHT
 };
 
 struct ColliderData
@@ -43,7 +45,12 @@ public:
 	void handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void restart();
 
+	State getState();
+
 	bool restarting;
+
+	float standardHeight;
+	float crouchHeight;
 private:
 	void handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void updateLists();
@@ -53,12 +60,14 @@ private:
 	sf::Keyboard::Key leftKey_;
 	sf::Keyboard::Key rightKey_;
 	sf::Keyboard::Key timeKey_;
+	sf::Keyboard::Key downKey_;
 
 	//Extra
 	sf::Keyboard::Key xJumpKey_;
 	sf::Keyboard::Key xLeftKey_;
 	sf::Keyboard::Key xRightKey_;
 	sf::Keyboard::Key xTimeKey_;
+	sf::Keyboard::Key xDownKey_;
 
 	sf::Vector2f velocity_;
 	sf::Vector2f acceleration_;
@@ -103,6 +112,8 @@ private:
 	Animation jumpAnimationRight_;
 	Animation wallClingAnimationLeft_;
 	Animation wallClingAnimationRight_;
+	Animation slideAnimationLeft_;
+	Animation slideAnimationRight_;
 
 	//SHADERS!!!! :D
 	sf::Shader shader_;
@@ -110,6 +121,8 @@ private:
 	//Used for fading effects
 	sf::Clock fader_;
 	bool faderBool_;
+
+	
 
 	static const float GRAVITY;
 	static const float SLIDE_GRAVITY;
@@ -119,9 +132,9 @@ private:
 	static const float MAX_Y_SPEED;
 	static const float X_DRAG;
 	static const float X_DRAG_AIR;
+	static const float X_DRAG_SLIDE;
 	static const std::string DEFAULT_PLAYER_TEXTURE;
 	static const std::string DEFAULT_ANIMATION_PATH;
-	static const unsigned int DEFAULT_ANIMATION_FRAMES;
 	static const float JUMP_TIME;
 	static const float DROP_TIME;
 
