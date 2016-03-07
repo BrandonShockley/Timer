@@ -10,6 +10,7 @@
 class Level
 {
 public:
+	Level();
 	Level(const std::string path);
 	~Level();
 
@@ -22,8 +23,8 @@ public:
 	std::string getPath();
 	void restart();
 	void stopSounds();
-private:
-	void loadMapData(const std::string path);
+protected:
+	virtual void loadMapData(const std::string path);
 	//Checks if the player has reached the end
 	void checkComplete();
 
@@ -33,6 +34,7 @@ private:
 	sf::View view;
 
 	std::vector<std::vector<Tile>> grid_;
+	std::vector<sf::CircleShape> lights_;
 	int mapWidth_;
 	int mapHeight_;
 	//Inline tile set POD
@@ -47,6 +49,9 @@ private:
 		int imageHeight;
 		std::string source;
 	} tileSet_;
+
+	sf::Shader lightShader_;
+	sf::Clock time_;
 
 	Entity* background_;
 

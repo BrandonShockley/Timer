@@ -4,12 +4,18 @@
 #include <SFML\Audio.hpp>
 
 const float Level::ZOOM = 2.5;
-const float Level::PARALLAX_MODIFIER = 24;
+const float Level::PARALLAX_MODIFIER = 30;
 const float Level::BACKGROUND_SCALE = 4;
+
+Level::Level()
+{
+}
 
 Level::Level(std::string path) : completed_(false), died_(false), path_(path)
 {
 	buffer_.loadFromFile("assets/drone/drone.wav");
+	if (!lightShader_.loadFromFile("shaders/light.frag", sf::Shader::Fragment))
+		fatalError("Failed to load light shader\n");
 
 	//sound_.setLoop(true);
 	sound_.setAttenuation(1);
@@ -35,6 +41,7 @@ Level::~Level()
 void Level::render(sf::RenderWindow& window)
 {
 	//sf::View view;
+	lights_.clear();
 	view.setSize(window.getDefaultView().getSize() * ZOOM);
 	if (player_->getState() != State::SLIDING_LEFT && player_->getState() != State::SLIDING_RIGHT)
 		view.setCenter(player_->getPosition().x, player_->getPosition().y + player_->getBounds().height / 2);
@@ -48,10 +55,32 @@ void Level::render(sf::RenderWindow& window)
 		{
 			if (i.entity != nullptr)
 				i.entity->render(window);
+			if (i.type == TileType::LIGHT)
+			{
+				sf::CircleShape light;
+				light.setRadius(tileSet_.tileWidth * 2.5);
+				light.setOrigin(light.getRadius() / 2, light.getRadius() / 2);
+				light.setPosition(i.entity->getPosition().x - i.entity->getBounds().width / 1.35, i.entity->getPosition().y - i.entity->getBounds().height / 1.35);
+				printf("%f\n", (view.getCenter().x - view.getSize().x / 2));
+				
+				lights_.push_back(light);
+			}
 		}
 	}
-	player_->render(window);
+	
 	drone_->render(window);
+	for (sf::CircleShape light : lights_)
+	{
+		lightShader_.setParameter("worldLocation", sf::Vector2f(light.getPosition().x + light.getRadius() / 2, light.getPosition().y + light.getRadius() / 2));
+		lightShader_.setParameter("viewLocation", sf::Vector2f(view.getCenter().x - view.getSize().x / 2, view.getCenter().y - view.getSize().y / 2));
+		lightShader_.setParameter("zoom", ZOOM);
+		lightShader_.setParameter("windowHeight", window.getSize().y);
+		lightShader_.setParameter("time", time_.getElapsedTime().asMilliseconds());
+		lightShader_.setParameter("radius", light.getRadius());
+		lightShader_.setParameter("tileHeight", tileSet_.tileHeight);
+		window.draw(light, &lightShader_);
+	}
+	player_->render(window);
 }
 
 void Level::update(float time)
@@ -177,7 +206,7 @@ void Level::loadMapData(const std::string path)
 			finishPoint_.y = n.child("object").attribute("y").as_float();
 		}
 	}
-	//Grabs drone path
+	//Grabs drone spawn
 	for (pugi::xml_node n : doc.child("map").children("objectgroup"))
 	{
 		std::string name = std::string(n.attribute("name").as_string());
@@ -214,7 +243,20 @@ void Level::loadMapData(const std::string path)
 				{
 					grid_[j][i].type = TileType::NONSOLID;
 				}
-				else if (l.attribute("gid").as_int() == 35)
+				else if (l.attribute("gid").as_int() == 9)
+				{
+					//Grabs corresponding tile set coordinate
+					int gid = l.attribute("gid").as_int() - 1;
+					int y = (int)floor(gid / (tileSet_.imageWidth / tileSet_.tileWidth)) * tileSet_.tileHeight;
+					int x = (gid - (y / tileSet_.tileWidth * (tileSet_.imageWidth / tileSet_.tileWidth))) * tileSet_.tileWidth;
+
+					//Specifies tile type at coordinate
+					grid_[j][i].type = TileType::LIGHT;
+					//Specifies tile entity
+					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
+				}
+				else if (l.attribute("gid").as_int() == 4 || l.attribute("gid").as_int() == 5 || l.attribute("gid").as_int() == 7 || l.attribute("gid").as_int() == 8 || l.attribute("gid").as_int() == 9 || l.attribute("gid").as_int() == 10 || l.attribute("gid").as_int() == 11)
 				{
 					//Grabs corresponding tile set coordinate
 					int gid = l.attribute("gid").as_int() - 1;

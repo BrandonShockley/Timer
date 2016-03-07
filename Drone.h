@@ -40,6 +40,7 @@ private:
 
 	bool reverseToggle_;
 	sf::Clock exponentialReverse_;
+	sf::Clock flashTimer_;
 
 	float angle_;
 
@@ -51,10 +52,5 @@ private:
 	static const float MAX_LINEAR_SPEED;
 	static const float MAX_LINEAR_ACCEL_X;
 	static const float MAX_LINEAR_ACCEL_Y;
-	/*
-	Plan:
-	Constructed with a list of coordinates that are pushed into a vector of sf::vectors
-	On construction, move at certain speed to first coordinate, then second, etc.
-	*/
 };
 

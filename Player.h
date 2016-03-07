@@ -46,6 +46,7 @@ public:
 	void restart();
 
 	State getState();
+	void setState(State state);
 
 	bool restarting;
 
@@ -101,8 +102,10 @@ private:
 
 	unsigned int timeLimiter_;
 
+	//Blue reverse effect
 	sf::RectangleShape gradient_;
-	sf::RectangleShape timeBar_;
+	//Death effect
+	sf::RectangleShape flash_;
 
 	Animation idleAnimationLeft_;
 	Animation idleAnimationRight_;
@@ -118,10 +121,11 @@ private:
 	//SHADERS!!!! :D
 	sf::Shader shader_;
 	sf::Shader rectShader_;
+	sf::Shader flashShader_;
 	//Used for fading effects
 	sf::Clock fader_;
 	bool faderBool_;
-
+	sf::Clock flashClock_;
 	
 
 	static const float GRAVITY;

@@ -3,7 +3,7 @@
 #include <cmath>
 
 const std::string Drone::DEFAULT_DRONE_TEXTURE = "assets/drone/drone.png";
-const float Drone::MAX_LINEAR_SPEED = 000;
+const float Drone::MAX_LINEAR_SPEED = 2000;
 const float Drone::MAX_LINEAR_ACCEL_X = 9000;
 const float Drone::MAX_LINEAR_ACCEL_Y = 7000;
 
@@ -43,12 +43,12 @@ void Drone::update(float time)
 		//Set velocity to reach next checkpoint
 		if (nextLocation_.x - position_.x > 0)
 		{
-			angle_ = atanf((nextLocation_.y - position_.y) / (nextLocation_.x - position_.x)); //Fix
+			angle_ = atanf((nextLocation_.y - position_.y) / (nextLocation_.x - position_.x));
 			acceleration_ = sf::Vector2f(cos(angle_) * MAX_LINEAR_ACCEL_X, sin(angle_) * MAX_LINEAR_ACCEL_Y);
 		}
 		else
 		{
-			angle_ = atanf((nextLocation_.y - position_.y) / (nextLocation_.x - position_.x)); //Fix
+			angle_ = atanf((nextLocation_.y - position_.y) / (nextLocation_.x - position_.x));
 			acceleration_ = sf::Vector2f(-cos(angle_) * MAX_LINEAR_ACCEL_X, -sin(angle_) * MAX_LINEAR_ACCEL_Y);
 		}
 
@@ -63,7 +63,6 @@ void Drone::update(float time)
 		//Update vectors
 		velocity_ += acceleration_ * time;
 		position_ += velocity_ * time;
-		printf("Position: %f, %f\nVelocity: %f, %f\n", position_.x, position_.y, velocity_.x, velocity_.y);
 
 		recordTicker_ += time;
 		if (recordTicker_ >= Player::RECORD_INTERVAL && !timeTraveling_)
@@ -80,15 +79,23 @@ void Drone::update(float time)
 			if (!reverseToggle_)
 			{
 				exponentialReverse_.restart();
+				flashTimer_.restart();
 				reverseToggle_ = true;
 			}
-			if (playbackTicker_ >= Player::PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1)
+			if (playbackTicker_ >= Player::PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1 && flashTimer_.getElapsedTime().asSeconds() < 1)
 			{
 				position_ = positionList_[positionList_.size() - 1];
 				positionList_.pop_back();
 				velocity_ = velocityList_[velocityList_.size() - 1];
 				velocityList_.pop_back();
 				playbackTicker_ = 0;
+			}
+			else if (flashTimer_.getElapsedTime().asSeconds() > 1)
+			{
+				position_ = positionList_[0];
+				velocity_ = velocityList_[0];
+				positionList_.clear();
+				velocityList_.clear();
 			}
 		}
 		else

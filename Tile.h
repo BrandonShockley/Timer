@@ -5,7 +5,7 @@ enum TileType
 {
 	NONSOLID,
 	SOLID,
-	GATE
+	LIGHT
 };
 
 struct Tile

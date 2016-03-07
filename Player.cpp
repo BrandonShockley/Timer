@@ -47,7 +47,8 @@ Player::Player(sf::Vector2f position) :
 		fatalError("Failed to load player shader");
 	if (!rectShader_.loadFromFile("shaders/gradient.frag", sf::Shader::Fragment))
 		fatalError("Failed to load gradient shader");
-	
+	if (!flashShader_.loadFromFile("shaders/flash.frag", sf::Shader::Fragment))
+		fatalError("Failed to load flash shader");
 }
 
 Player::~Player()
@@ -162,9 +163,9 @@ void Player::handleInput(sf::RenderWindow & window)
 	{
 		wPress_ = false;
 	}
-	if (sf::Keyboard::isKeyPressed(downKey_) || sf::Keyboard::isKeyPressed(xDownKey_))
+	if ((sf::Keyboard::isKeyPressed(downKey_) || sf::Keyboard::isKeyPressed(xDownKey_)) && onGround_.colliding && !collideRight_.colliding && !collideLeft_.colliding)
 	{
-		if (state_ == State::MOVING_RIGHT || state_ == State::SLIDING_RIGHT || state_ == State::IDLE_RIGHT)
+		if ((state_ == State::MOVING_RIGHT || state_ == State::SLIDING_RIGHT || state_ == State::IDLE_RIGHT) && !collideRight_.colliding && !collideLeft_.colliding)
 		{
 			if (state_ != State::SLIDING_RIGHT)
 			{
@@ -174,7 +175,7 @@ void Player::handleInput(sf::RenderWindow & window)
 			state_ = State::SLIDING_RIGHT;
 			return;
 		}
-		else if (state_ == State::MOVING_LEFT || state_ == State::SLIDING_LEFT || state_ == State::IDLE_LEFT)
+		else if ((state_ == State::MOVING_LEFT || state_ == State::SLIDING_LEFT || state_ == State::IDLE_LEFT) && !collideRight_.colliding && !collideLeft_.colliding)
 		{
 			if (state_ != State::SLIDING_LEFT)
 			{
@@ -184,8 +185,22 @@ void Player::handleInput(sf::RenderWindow & window)
 			state_ = State::SLIDING_LEFT;
 			return;
 		}
+		else if (collideRight_.colliding)
+		{
+			position_.y = position_.y + getBounds().height - wallClingAnimationRight_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
+			state_ = State::WALL_CLING_RIGHT;
+			position_.x -= 1;
+		}
+		else if (collideLeft_.colliding)
+		{
+			position_.y = position_.y + getBounds().height - wallClingAnimationLeft_.getNextFrame().getSize().y;
+			sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
+			state_ = State::WALL_CLING_LEFT;
+			position_.x += 1;
+		}
 	}
-	if ((sf::Keyboard::isKeyPressed(rightKey_) && !sf::Keyboard::isKeyPressed(leftKey_)) || (sf::Keyboard::isKeyPressed(xRightKey_) && !sf::Keyboard::isKeyPressed(xLeftKey_)))
+	if (((sf::Keyboard::isKeyPressed(rightKey_) && !sf::Keyboard::isKeyPressed(leftKey_)) || (sf::Keyboard::isKeyPressed(xRightKey_) && !sf::Keyboard::isKeyPressed(xLeftKey_))) && !collideRight_.colliding)
 	{
 		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
 		{
@@ -195,7 +210,7 @@ void Player::handleInput(sf::RenderWindow & window)
 		state_ = State::MOVING_RIGHT;
 		return;
 	}
-	if ((sf::Keyboard::isKeyPressed(leftKey_) && !sf::Keyboard::isKeyPressed(rightKey_)) || (sf::Keyboard::isKeyPressed(xLeftKey_) && !sf::Keyboard::isKeyPressed(xRightKey_)))
+	if (((sf::Keyboard::isKeyPressed(leftKey_) && !sf::Keyboard::isKeyPressed(rightKey_)) || (sf::Keyboard::isKeyPressed(xLeftKey_) && !sf::Keyboard::isKeyPressed(xRightKey_))) && !collideLeft_.colliding)
 	{
 		if (state_ == State::SLIDING_LEFT || state_ == State::SLIDING_RIGHT)
 		{
@@ -302,7 +317,8 @@ void Player::render(sf::RenderWindow & window)
 	shader_.setParameter("texture", *sprite_.getTexture());
 	sprite_.setPosition(position_);
 	window.draw(sprite_, &shader_);
-	gradient_.setFillColor(sf::Color::Cyan);
+	//Reverse effect
+	gradient_.setFillColor(sf::Color(31, 199, 255));
 	gradient_.setSize((sf::Vector2f)window.getView().getSize());
 	gradient_.setOrigin(gradient_.getSize().x / 2, gradient_.getSize().y / 2);
 	gradient_.setPosition(getPosition().x/* + getBounds().width / 2*/, getPosition().y + getBounds().height / 2);
@@ -310,7 +326,18 @@ void Player::render(sf::RenderWindow & window)
 	rectShader_.setParameter("screenHeight", window.getSize().y);
 	rectShader_.setParameter("faderTime", fader_.getElapsedTime().asSeconds());
 	rectShader_.setParameter("faderDuration", FADER_DURATION);
-	window.draw(gradient_, &rectShader_);
+	if (!restarting)
+		window.draw(gradient_, &rectShader_);
+	//Death flash effect
+	flash_.setFillColor(sf::Color(31, 199, 255));
+	flash_.setSize((sf::Vector2f)window.getView().getSize());
+	flash_.setOrigin(flash_.getSize().x / 2, flash_.getSize().y / 2);
+	flash_.setPosition(getPosition().x, getPosition().y + getBounds().height / 2);
+	flashShader_.setParameter("screenWidth", window.getSize().x);
+	flashShader_.setParameter("time", flashClock_.getElapsedTime().asSeconds());
+	flashShader_.setParameter("restarting", restarting);
+	flashShader_.setParameter("restartToggle", restartToggle_);
+	window.draw(flash_, &flashShader_);
 }
 
 void Player::handleCollision(std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
@@ -415,6 +442,11 @@ void Player::restart()
 State Player::getState()
 {
 	return state_;
+}
+
+void Player::setState(State state)
+{
+	state_ = state;
 }
 
 void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds)
@@ -541,16 +573,17 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 	}
 	else
 	{
-		
+		printf("%f\n", flashClock_.getElapsedTime().asSeconds());
 		playbackTicker_ += time;
 		if (restarting)
 		{
 			if (!restartToggle_)
 			{
-				exponentialReverse_.restart();
 				restartToggle_ = true;
+				exponentialReverse_.restart();
+				flashClock_.restart();
 			}
-			if (playbackTicker_ >= PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1)
+			if (playbackTicker_ >= PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1 && flashClock_.getElapsedTime().asSeconds() < 1)
 			{
 				position_ = positionList_[positionList_.size() - 1];
 				positionList_.pop_back();
@@ -559,6 +592,17 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 				state_ = stateList_[stateList_.size() - 1];
 				stateList_.pop_back();
 				playbackTicker_ = 0;
+			}
+			else if (flashClock_.getElapsedTime().asSeconds() > 1)
+			{
+				float i = flashClock_.getElapsedTime().asSeconds();
+				printf("%f", i);
+				position_ = positionList_[0];
+				velocity_ = velocityList_[0];
+				state_ = stateList_[0];
+				positionList_.clear();
+				velocityList_.clear();
+				stateList_.clear();
 			}
 		}
 		else
@@ -577,10 +621,13 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		if (positionList_.size() <= 1)
 		{
 			restarting = false;
-			restartToggle_ = false;
 		}
+		if (flashClock_.getElapsedTime().asSeconds() >= 2)
+			restartToggle_ = false;
 		timeTraveling_ = true;
 	}
+	if (flashClock_.getElapsedTime().asSeconds() >= 2)
+		restartToggle_ = false;
 }
 
 void Player::updateLists()
@@ -589,10 +636,3 @@ void Player::updateLists()
 	velocityList_.push_back(velocity_);
 	stateList_.push_back(state_);
 }
-
-
-/*
-Meat Boy Stuff
-- Don't need to press in direction of wall to slide (check)
-- When pressing away from wall, it takes a bit for the character to peel off
-*/

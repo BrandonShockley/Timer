@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Player.h"
+#include "Cutscene.h"
 
 
 const unsigned int Game::TARGET_FRAMERATE = 60;
@@ -7,8 +8,8 @@ const unsigned int Game::TARGET_FRAMERATE = 60;
 Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0), view_(window.getView())
 {
 	gameState_ = GameState::MENU;
+	levels_.push_back(new Cutscene("maps/cutscene1.tmx"));
 	levels_.push_back(new Level("maps/test.tmx"));
-	//levels_.push_back(new Level("maps/ping.tmx"));
 	gameLoop();
 }
 
@@ -33,7 +34,6 @@ void Game::gameLoop()
 				update(deltaTime);
 				pastTime = currentTime;
 			} while (pastTime < 1.0f / TARGET_FRAMERATE);
-			printf("%i\n", gameState_);
 			render();
 			clock.restart();
 		}
