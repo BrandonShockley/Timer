@@ -63,9 +63,18 @@ protected:
 	//Sound
 	sf::SoundBuffer buffer_;
 	sf::Sound sound_;
+	//sf::SoundBuffer musicBuffer_;
+	sf::Music music_;
+	sf::Music reverseMusic_;
+
+	sf::Time musicTimer_;
 
 	bool completed_;
 	bool died_;
+
+	bool alarmTriggered_;
+
+	bool started_;
 
 	static const float ZOOM;
 	static const float PARALLAX_MODIFIER;

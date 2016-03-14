@@ -1,6 +1,6 @@
 #include "Menu.h"
 
-Menu::Menu() : background_("assets/backgrounds/menubackground.jpg", sf::Vector2f(), sf::IntRect(), 1.8f),
+Menu::Menu() : background_("assets/backgrounds/skyline.jpg", sf::Vector2f(), sf::IntRect(), 1.4f),
 title_("assets/titleicons/title.png", sf::Vector2f(0, 400)), selection_(NONE)
 {
 	buttons_.push_back(new Clickeable("assets/titleicons/start2.png", "assets/titleicons/start1.png", sf::Vector2f()));
@@ -27,7 +27,7 @@ void Menu::render(sf::RenderWindow & window)
 
 void Menu::update(float time)
 {
-	background_.setPosition((sf::Vector2f)-sf::Mouse::getPosition() / 2.5f);
+	background_.setPosition((sf::Vector2f)-sf::Mouse::getPosition() / 4.5f);
 	selection_ = NONE;
 	for (Clickeable* i : buttons_)
 	{

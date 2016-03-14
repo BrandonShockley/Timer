@@ -9,7 +9,8 @@ Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0), view_
 {
 	gameState_ = GameState::MENU;
 	levels_.push_back(new Cutscene("maps/cutscene1.tmx"));
-	levels_.push_back(new Level("maps/test.tmx"));
+	levels_.push_back(new Cutscene("maps/cutscene2.tmx"));
+	levels_.push_back(new Level("maps/1.tmx"));
 	gameLoop();
 }
 
@@ -81,7 +82,9 @@ void Game::update(float time)
 	{
 		levels_[currentLevel_]->update(time);
 		if (levels_[currentLevel_]->isCompleted() && currentLevel_ != levels_.size())
+		{
 			currentLevel_++;
+		}
 		if (currentLevel_ == levels_.size())
 			gameState_ = GameState::COMPLETE;
 		else if (levels_[currentLevel_]->isDead())

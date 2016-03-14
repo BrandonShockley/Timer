@@ -1,3 +1,5 @@
+#version 130
+
 uniform vec2 worldLocation;
 uniform vec2 viewLocation;
 uniform float zoom;

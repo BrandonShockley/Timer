@@ -1,3 +1,5 @@
+#version 130
+
 uniform bool timeWarp;
 uniform float screenHeight;
 uniform float faderTime;

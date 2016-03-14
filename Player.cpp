@@ -29,15 +29,14 @@ Player::Player(sf::Vector2f position) :
 	restarting(false),
 	faderBool_(false),
 	restartToggle_(false),
+	started_(false),
 	jumpKey_(sf::Keyboard::Up), rightKey_(sf::Keyboard::Right), leftKey_(sf::Keyboard::Left), timeKey_(sf::Keyboard::RShift), downKey_(sf::Keyboard::Down),
 	xJumpKey_(sf::Keyboard::W), xRightKey_(sf::Keyboard::D), xLeftKey_(sf::Keyboard::A), xTimeKey_(sf::Keyboard::LShift), xDownKey_(sf::Keyboard::S),
 	playbackTicker_(0.0f),
 	idleAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/idleLeft.png", 1)),
 	idleAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/idleRight.png", 1)),
-	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", 60)),
-	runAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/runningLeft.png", 60)),
-	jumpAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/jumpLeft.png", 1)),
-	jumpAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/jumpRight.png", 1)),
+	runAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/runningRight.png", 22)),
+	runAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/runningLeft.png", 22)),
 	wallClingAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingLeft.png", 1)),
 	wallClingAnimationRight_(Animation(DEFAULT_ANIMATION_PATH + "/wallClingRight.png", 1)),
 	slideAnimationLeft_(Animation(DEFAULT_ANIMATION_PATH + "/slideLeft.png", 1)),
@@ -264,29 +263,21 @@ void Player::render(sf::RenderWindow & window)
 		break;
 	case State::MOVING_LEFT:
 		idleAnimationLeft_.reset();
+		sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
 		sprite_.setTexture(runAnimationLeft_.getNextFrame());
 		break;
 	case State::MOVING_RIGHT:
 		idleAnimationRight_.reset();
+		sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
 		sprite_.setTexture(runAnimationRight_.getNextFrame());
 		break;
-	case State::JUMPING_LEFT:
-		sprite_.setTexture(jumpAnimationLeft_.getNextFrame());
-		jumpAnimationRight_.reset();
-		idleAnimationLeft_.reset();
-		runAnimationLeft_.reset();
-		break;
-	case State::JUMPING_RIGHT:
-		sprite_.setTexture(jumpAnimationRight_.getNextFrame());
-		jumpAnimationLeft_.reset();
-		idleAnimationRight_.reset();
-		runAnimationRight_.reset();
-		break;
 	case State::WALL_CLING_LEFT:
+		sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
 		sprite_.setTexture(wallClingAnimationLeft_.getNextFrame());
 		idleAnimationLeft_.reset();
 		break;
 	case State::WALL_CLING_RIGHT:
+		sprite_.setTexture(idleAnimationRight_.getNextFrame(), true);
 		sprite_.setTexture(wallClingAnimationRight_.getNextFrame());
 		idleAnimationRight_.reset();
 		break;
@@ -321,7 +312,10 @@ void Player::render(sf::RenderWindow & window)
 	gradient_.setFillColor(sf::Color(31, 199, 255));
 	gradient_.setSize((sf::Vector2f)window.getView().getSize());
 	gradient_.setOrigin(gradient_.getSize().x / 2, gradient_.getSize().y / 2);
-	gradient_.setPosition(getPosition().x/* + getBounds().width / 2*/, getPosition().y + getBounds().height / 2);
+	if (state_ != State::SLIDING_LEFT && state_ != State::SLIDING_RIGHT)
+		gradient_.setPosition(getPosition().x, getPosition().y + getBounds().height / 2);
+	else
+		gradient_.setPosition(getPosition().x, getPosition().y + slideAnimationLeft_.getNextFrame().getSize().y - idleAnimationLeft_.getNextFrame().getSize().y);
 	rectShader_.setParameter("timeWarp", timeTraveling_);
 	rectShader_.setParameter("screenHeight", window.getSize().y);
 	rectShader_.setParameter("faderTime", fader_.getElapsedTime().asSeconds());
@@ -332,9 +326,19 @@ void Player::render(sf::RenderWindow & window)
 	flash_.setFillColor(sf::Color(31, 199, 255));
 	flash_.setSize((sf::Vector2f)window.getView().getSize());
 	flash_.setOrigin(flash_.getSize().x / 2, flash_.getSize().y / 2);
-	flash_.setPosition(getPosition().x, getPosition().y + getBounds().height / 2);
+	if (state_ != State::SLIDING_LEFT && state_ != State::SLIDING_RIGHT)
+		flash_.setPosition(getPosition().x, getPosition().y + getBounds().height / 2);
+	else
+		flash_.setPosition(getPosition().x, getPosition().y + slideAnimationLeft_.getNextFrame().getSize().y - idleAnimationLeft_.getNextFrame().getSize().y);
 	flashShader_.setParameter("screenWidth", window.getSize().x);
-	flashShader_.setParameter("time", flashClock_.getElapsedTime().asSeconds());
+	if (flashClock_.getElapsedTime().asSeconds() >= 2 && !started_)
+		started_ = true;
+	if (!started_)
+	{
+		flashShader_.setParameter("time", flashClock_.getElapsedTime().asSeconds() + 1);
+	}
+	else
+		flashShader_.setParameter("time", flashClock_.getElapsedTime().asSeconds());
 	flashShader_.setParameter("restarting", restarting);
 	flashShader_.setParameter("restartToggle", restartToggle_);
 	window.draw(flash_, &flashShader_);
@@ -583,7 +587,7 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 				exponentialReverse_.restart();
 				flashClock_.restart();
 			}
-			if (playbackTicker_ >= PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1 && flashClock_.getElapsedTime().asSeconds() < 1)
+			if (playbackTicker_ >= PLAYBACK_INTERVAL / (4.f * (exponentialReverse_.getElapsedTime().asSeconds())) && positionList_.size() > 1 && flashClock_.getElapsedTime().asSeconds() < 1 && started_)
 			{
 				position_ = positionList_[positionList_.size() - 1];
 				positionList_.pop_back();
@@ -622,12 +626,16 @@ void Player::handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::
 		{
 			restarting = false;
 		}
+		
 		if (flashClock_.getElapsedTime().asSeconds() >= 2)
+		{
 			restartToggle_ = false;
+		}
 		timeTraveling_ = true;
 	}
 	if (flashClock_.getElapsedTime().asSeconds() >= 2)
 		restartToggle_ = false;
+	
 }
 
 void Player::updateLists()

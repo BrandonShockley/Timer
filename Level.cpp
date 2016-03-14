@@ -11,9 +11,12 @@ Level::Level()
 {
 }
 
-Level::Level(std::string path) : completed_(false), died_(false), path_(path)
+Level::Level(std::string path) : completed_(false), died_(false), path_(path), alarmTriggered_(true), started_(false), musicTimer_()
 {
 	buffer_.loadFromFile("assets/drone/drone.wav");
+	music_.openFromFile("assets/music/BOGO.wav");
+	reverseMusic_.openFromFile("assets/music/BOGOReverse.wav");
+
 	if (!lightShader_.loadFromFile("shaders/light.frag", sf::Shader::Fragment))
 		fatalError("Failed to load light shader\n");
 
@@ -53,7 +56,10 @@ void Level::render(sf::RenderWindow& window)
 	{
 		for (Tile i : i)
 		{
-			if (i.entity != nullptr)
+			if (i.entity != nullptr && sf::FloatRect(
+					sf::Vector2f(window.getView().getCenter().x - window.getView().getSize().x,
+					window.getView().getCenter().y - window.getView().getSize().y),
+					window.getView().getSize() * 2.f).contains(i.entity->getPosition()))
 				i.entity->render(window);
 			if (i.type == TileType::LIGHT)
 			{
@@ -69,22 +75,30 @@ void Level::render(sf::RenderWindow& window)
 	}
 	
 	drone_->render(window);
-	for (sf::CircleShape light : lights_)
+	if (alarmTriggered_)
 	{
-		lightShader_.setParameter("worldLocation", sf::Vector2f(light.getPosition().x + light.getRadius() / 2, light.getPosition().y + light.getRadius() / 2));
-		lightShader_.setParameter("viewLocation", sf::Vector2f(view.getCenter().x - view.getSize().x / 2, view.getCenter().y - view.getSize().y / 2));
-		lightShader_.setParameter("zoom", ZOOM);
-		lightShader_.setParameter("windowHeight", window.getSize().y);
-		lightShader_.setParameter("time", time_.getElapsedTime().asMilliseconds());
-		lightShader_.setParameter("radius", light.getRadius());
-		lightShader_.setParameter("tileHeight", tileSet_.tileHeight);
-		window.draw(light, &lightShader_);
+		for (sf::CircleShape light : lights_)
+		{
+			lightShader_.setParameter("worldLocation", sf::Vector2f(light.getPosition().x + light.getRadius() / 2, light.getPosition().y + light.getRadius() / 2));
+			lightShader_.setParameter("viewLocation", sf::Vector2f(view.getCenter().x - view.getSize().x / 2, view.getCenter().y - view.getSize().y / 2));
+			lightShader_.setParameter("zoom", ZOOM);
+			lightShader_.setParameter("windowHeight", window.getSize().y);
+			lightShader_.setParameter("time", time_.getElapsedTime().asMilliseconds());
+			lightShader_.setParameter("radius", light.getRadius());
+			lightShader_.setParameter("tileHeight", tileSet_.tileHeight);
+			window.draw(light, &lightShader_);
+		}
 	}
 	player_->render(window);
 }
 
 void Level::update(float time)
 {
+	if (!started_)
+	{
+		restart();
+		started_ = true;
+	}
 	if (player_->restarting && !drone_->restarting)
 		drone_->restarting = true;
 	else if (!player_->restarting && drone_->restarting)
@@ -110,6 +124,32 @@ void Level::update(float time)
 		stopSounds();
 	sound_.setPosition(drone_->getPosition().x, 0, drone_->getPosition().y);
 	sound_.setMinDistance(500.f);
+
+	//if (music_.getStatus() != sf::SoundSource::Playing && reverseMusic_.getStatus() != sf::SoundSource::Playing)
+		//music_.play();
+
+	if (music_.getStatus() == sf::SoundSource::Playing)
+		musicTimer_ = music_.getPlayingOffset();
+	else if (reverseMusic_.getStatus() == sf::SoundSource::Playing)
+		musicTimer_ = reverseMusic_.getPlayingOffset();
+
+	if (!died_ && !completed_)
+	{
+		if (player_->timeTraveling_ && music_.getStatus() == sf::SoundSource::Playing)
+		{
+			music_.pause();
+			reverseMusic_.setPlayingOffset(reverseMusic_.getDuration() - music_.getPlayingOffset());
+			reverseMusic_.play();
+		}
+		else if (!player_->timeTraveling_ && reverseMusic_.getStatus() == sf::SoundSource::Playing)
+		{
+			music_.setPlayingOffset(music_.getDuration() - reverseMusic_.getPlayingOffset());
+			reverseMusic_.pause();
+			music_.play();
+		}
+	}
+	else if (completed_)
+		stopSounds();
 }
 
 void Level::handleInput(sf::RenderWindow & window)
@@ -151,6 +191,7 @@ void Level::restart()
 void Level::stopSounds()
 {
 	sound_.stop();
+	music_.stop();
 }
 
 void Level::loadMapData(const std::string path)

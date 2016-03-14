@@ -52,6 +52,8 @@ public:
 
 	float standardHeight;
 	float crouchHeight;
+
+	bool timeTraveling_;
 private:
 	void handlePhysics(float time, std::vector<std::vector<Tile>> grid, sf::Vector2i tileBounds);
 	void updateLists();
@@ -94,7 +96,7 @@ private:
 	std::vector<State> stateList_;
 	float recordTicker_;
 
-	bool timeTraveling_;
+	
 	float playbackTicker_;
 
 	bool restartToggle_;
@@ -111,8 +113,6 @@ private:
 	Animation idleAnimationRight_;
 	Animation runAnimationLeft_;
 	Animation runAnimationRight_;
-	Animation jumpAnimationLeft_;
-	Animation jumpAnimationRight_;
 	Animation wallClingAnimationLeft_;
 	Animation wallClingAnimationRight_;
 	Animation slideAnimationLeft_;
@@ -127,6 +127,7 @@ private:
 	bool faderBool_;
 	sf::Clock flashClock_;
 	
+	bool started_;
 
 	static const float GRAVITY;
 	static const float SLIDE_GRAVITY;
