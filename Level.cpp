@@ -125,8 +125,8 @@ void Level::update(float time)
 	sound_.setPosition(drone_->getPosition().x, 0, drone_->getPosition().y);
 	sound_.setMinDistance(500.f);
 
-	//if (music_.getStatus() != sf::SoundSource::Playing && reverseMusic_.getStatus() != sf::SoundSource::Playing)
-		//music_.play();
+	if (music_.getStatus() != sf::SoundSource::Playing && reverseMusic_.getStatus() != sf::SoundSource::Playing)
+		music_.play();
 
 	if (music_.getStatus() == sf::SoundSource::Playing)
 		musicTimer_ = music_.getPlayingOffset();
@@ -214,6 +214,7 @@ void Level::loadMapData(const std::string path)
 	tileSet_.tileHeight = tileSet.attribute("tileheight").as_int();
 	tileSet_.tileWidth = tileSet.attribute("tilewidth").as_int();
 	tileSet_.lastgid = (int)floor(tileSet_.imageWidth / tileSet_.tileWidth) * (int)floor(tileSet_.imageHeight / tileSet_.tileHeight);
+	tileTexture_.loadFromFile(tileSet_.source);
 
 	//Loads map data
 	mapWidth_ = doc.child("map").attribute("width").as_int();
@@ -294,7 +295,7 @@ void Level::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::LIGHT;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				else if (l.attribute("gid").as_int() == 4 || l.attribute("gid").as_int() == 5 || l.attribute("gid").as_int() == 7 || l.attribute("gid").as_int() == 8 || l.attribute("gid").as_int() == 9 || l.attribute("gid").as_int() == 10 || l.attribute("gid").as_int() == 11)
@@ -307,7 +308,7 @@ void Level::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::NONSOLID;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				else
@@ -320,7 +321,7 @@ void Level::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::SOLID;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				l = l.next_sibling("tile");

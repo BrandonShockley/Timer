@@ -53,6 +53,8 @@ protected:
 	sf::Shader lightShader_;
 	sf::Clock time_;
 
+	sf::Texture tileTexture_;
+
 	Entity* background_;
 
 	sf::Vector2f playerSpawnPoint_;

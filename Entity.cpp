@@ -22,6 +22,16 @@ Entity::Entity(const std::string path, sf::Vector2f position, sf::IntRect rect, 
 	sprite_.setPosition(position_);
 }
 
+Entity::Entity(sf::Texture& tex, sf::Vector2f position, sf::IntRect rect, float scale) : position_(position)
+{
+	sprite_.setTextureRect(rect);
+	sprite_.setTexture(tex);
+	sprite_.setTextureRect(rect);
+	//sprite_.scale(scale, scale);
+	sprite_.setPosition(position_);
+	//sf::FloatRect i = sprite_.getLocalBounds();
+}
+
 Entity::~Entity()
 {
 }

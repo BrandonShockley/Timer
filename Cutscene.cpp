@@ -6,6 +6,7 @@
 Cutscene::Cutscene(const std::string path) : currentPoint_(0), waiting_(false), droneEnabled_(false), fadeOut_(false), fadeStart_(false)
 {
 	alarmTriggered_ = false;
+	alarmBuffer_.loadFromFile("assets/misc/alarm.wav");
 	buffer_.loadFromFile("assets/drone/drone.wav");
 	sound_.setAttenuation(1);
 	if (!lightShader_.loadFromFile("shaders/light.frag", sf::Shader::Fragment))
@@ -40,6 +41,11 @@ void Cutscene::update(float time)
 			stopSounds();
 		sound_.setPosition(drone_->getPosition().x, 0, drone_->getPosition().y);
 		sound_.setMinDistance(500.f);
+		if (alarm_.getStatus() != sf::SoundSource::Status::Playing && !died_ && !completed_)
+		{
+			alarm_.setBuffer(alarmBuffer_);
+			alarm_.play();
+		}
 	}
 	//Parallax effect
 	if (player_->getState() != State::SLIDING_LEFT && player_->getState() != State::SLIDING_RIGHT)
@@ -73,6 +79,7 @@ void Cutscene::loadMapData(const std::string path)
 	tileSet_.tileHeight = tileSet.attribute("tileheight").as_int();
 	tileSet_.tileWidth = tileSet.attribute("tilewidth").as_int();
 	tileSet_.lastgid = (int)floor(tileSet_.imageWidth / tileSet_.tileWidth) * (int)floor(tileSet_.imageHeight / tileSet_.tileHeight);
+	tileTexture_.loadFromFile(tileSet_.source);
 
 	//Loads map data
 	mapWidth_ = doc.child("map").attribute("width").as_int();
@@ -166,7 +173,7 @@ void Cutscene::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::LIGHT;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				else if (l.attribute("gid").as_int() == 4 || l.attribute("gid").as_int() == 5 || l.attribute("gid").as_int() == 7 || l.attribute("gid").as_int() == 8 || l.attribute("gid").as_int() == 9 || l.attribute("gid").as_int() == 10 || l.attribute("gid").as_int() == 11)
@@ -179,7 +186,7 @@ void Cutscene::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::NONSOLID;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				else
@@ -192,7 +199,7 @@ void Cutscene::loadMapData(const std::string path)
 					//Specifies tile type at coordinate
 					grid_[j][i].type = TileType::SOLID;
 					//Specifies tile entity
-					grid_[j][i].entity = new Entity(tileSet_.source, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
+					grid_[j][i].entity = new Entity(tileTexture_, sf::Vector2f((float)(j * tileSet_.tileWidth), (float)(i * tileSet_.tileHeight)),
 						sf::IntRect(x, y, tileSet_.tileWidth, tileSet_.tileHeight));
 				}
 				l = l.next_sibling("tile");

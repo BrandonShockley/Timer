@@ -34,5 +34,8 @@ private:
 
 	State originalState_;
 	sf::Vector2f originalPosition_;
+
+	sf::SoundBuffer alarmBuffer_;
+	sf::Sound alarm_;
 };
 

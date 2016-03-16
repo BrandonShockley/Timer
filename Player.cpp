@@ -4,7 +4,7 @@
 
 const float Player::GRAVITY = 9000;
 const float Player::SLIDE_GRAVITY = 4500;
-const float Player::JUMP_VELOCITY = -3300;
+const float Player::JUMP_VELOCITY = -3000;
 const float Player::MOVE_ACCELERATION = 15000;
 const float Player::MAX_X_SPEED = 2500;
 const float Player::MAX_Y_SPEED = 4000;

@@ -6,6 +6,7 @@ class Entity
 {
 public:
 	Entity(const std::string path, sf::Vector2f position, sf::IntRect rect = sf::IntRect(), float scale = 1);
+	Entity(sf::Texture& tex, sf::Vector2f position, sf::IntRect rect = sf::IntRect(), float scale = 1);
 	~Entity();
 	virtual void update(float time);
 	virtual void render(sf::RenderWindow& window);

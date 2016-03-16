@@ -9,7 +9,7 @@ static const std::string WINDOW_TITLE = "Timer";
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height), WINDOW_TITLE/*, sf::Style::Fullscreen*/);
+	sf::RenderWindow window(sf::VideoMode(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height), WINDOW_TITLE, sf::Style::Fullscreen);
 	Game game(window);
 	return 0;
 }

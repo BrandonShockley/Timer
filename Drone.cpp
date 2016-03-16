@@ -3,9 +3,9 @@
 #include <cmath>
 
 const std::string Drone::DEFAULT_DRONE_TEXTURE = "assets/drone/drone.png";
-const float Drone::MAX_LINEAR_SPEED = 2000;
-const float Drone::MAX_LINEAR_ACCEL_X = 9000;
-const float Drone::MAX_LINEAR_ACCEL_Y = 7000;
+const float Drone::MAX_LINEAR_SPEED = 2500;
+const float Drone::MAX_LINEAR_ACCEL_X = 8000;
+const float Drone::MAX_LINEAR_ACCEL_Y = 6000;
 
 Drone::Drone(sf::Vector2f spawnPoint) : Entity(DEFAULT_DRONE_TEXTURE, sf::Vector2f()), 
 currentLocation_(1), 

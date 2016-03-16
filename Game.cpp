@@ -1,16 +1,31 @@
 #include "Game.h"
 #include "Player.h"
 #include "Cutscene.h"
-
+#include "Error.h"
 
 const unsigned int Game::TARGET_FRAMERATE = 60;
 
 Game::Game(sf::RenderWindow & window) : window_(window), currentLevel_(0), view_(window.getView())
 {
 	gameState_ = GameState::MENU;
+
+	//Loading screen
+	sf::Texture load;
+	if (!load.loadFromFile("assets/titleicons/loading.png"))
+		fatalError("Failed to load loading image!\n");
+	sf::Sprite loading;
+	loading.setTexture(load);
+	loading.setOrigin(loading.getTextureRect().width / 2, loading.getTextureRect().height / 2);
+	loading.setPosition(window.getView().getSize().x / 2, window.getView().getSize().y / 2);
+	window_.draw(loading);
+	window_.display();
+
 	levels_.push_back(new Cutscene("maps/cutscene1.tmx"));
 	levels_.push_back(new Cutscene("maps/cutscene2.tmx"));
 	levels_.push_back(new Level("maps/1.tmx"));
+	levels_.push_back(new Level("maps/2.tmx"));
+	levels_.push_back(new Level("maps/3.tmx"));
+	levels_.push_back(new Level("maps/4.tmx"));
 	gameLoop();
 }
 
